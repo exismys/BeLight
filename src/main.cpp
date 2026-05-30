@@ -1,6 +1,19 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <cstdint>
+#include <vector>
+
+constexpr uint32_t WIDTH = 800;
+constexpr uint32_t HEIGHT = 600;
+struct Renderer {
+    int width;
+    int height;
+    std::vector<uint32_t> framebuffer;
+};
+
+void put_pixel(Renderer& renderer, int x, int y, uint32_t color) {
+    renderer.framebuffer[y * renderer.width + x] = color;
+}
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -12,8 +25,8 @@ int main() {
         "BeLight",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800,
-        600,
+        WIDTH,
+        HEIGHT,
         SDL_WINDOW_SHOWN
     );
 
@@ -23,50 +36,63 @@ int main() {
         return 1;
     }
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(
+    SDL_Renderer* sdl_renderer = SDL_CreateRenderer(
         window,
         -1,
         SDL_RENDERER_ACCELERATED
     );
-    if (renderer == nullptr) {
+    if (sdl_renderer == nullptr) {
         std::cerr << SDL_GetError() << '\n';
         SDL_DestroyWindow(window);
         SDL_Quit();
+        return 1;
     }
+
+    SDL_Texture* texture = SDL_CreateTexture(
+        sdl_renderer,
+        SDL_PIXELFORMAT_ARGB8888,
+        SDL_TEXTUREACCESS_STREAMING,
+        WIDTH,
+        HEIGHT
+    );
+    if (texture == nullptr) {
+        std::cerr << SDL_GetError() << '\n';
+        SDL_DestroyRenderer(sdl_renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
+    Renderer renderer{
+        WIDTH,
+        HEIGHT,
+        std::vector<uint32_t>(WIDTH * HEIGHT)
+    };
 
     bool running = true;
     SDL_Event event;
     while (running) {
+        // Process events
         while (SDL_PollEvent(&event)) {
-            std::cout << event.type << '\n';
             if (event.type == SDL_QUIT) {
                 running = false;
             }
         }
-        SDL_SetRenderDrawColor(
-            renderer,
-            0,
-            0,
-            0,
-            255
-        );
-        SDL_RenderClear(renderer);
 
-        SDL_SetRenderDrawColor(
-            renderer,
-            255,
-            255,
-            255,
-            255
+        // Update framebuffer
+        std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
+        put_pixel(renderer, WIDTH / 2, HEIGHT / 2, 0xFFFFFFFF);
+
+        SDL_UpdateTexture(
+            texture,
+            nullptr,
+            renderer.framebuffer.data(),
+            WIDTH * sizeof(uint32_t)
         );
 
-        SDL_RenderDrawPoint(
-            renderer,
-            400,
-            300
-        );
-
-        SDL_RenderPresent(renderer);
+        SDL_RenderClear(sdl_renderer);
+        SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
+        SDL_RenderPresent(sdl_renderer);
     }
 
     SDL_DestroyWindow(window);
