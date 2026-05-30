@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
+#include "renderer.h"
+#include "mathematics.h"
 
 enum class RenderMode {
     Software,
@@ -12,16 +14,6 @@ RenderMode mode = RenderMode::SDL;
 
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
-
-struct Renderer {
-    int width;
-    int height;
-    std::vector<uint32_t> framebuffer;
-};
-
-void put_pixel(Renderer& renderer, int x, int y, uint32_t color) {
-    renderer.framebuffer[y * renderer.width + x] = color;
-}
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -123,7 +115,7 @@ int main() {
         if (mode == RenderMode::Software) {
             // Update framebuffer
             std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
-            put_pixel(renderer, renderer.width / 2, renderer.height / 2, 0xFFFFFFFF);
+            draw_point(renderer, Vec2 {static_cast<float>(renderer.width / 4), static_cast<float>(renderer.height / 4)}, 0xFFFFFFFF);
 
             SDL_UpdateTexture(
                 texture,

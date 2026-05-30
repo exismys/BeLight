@@ -12,6 +12,8 @@ find_package(SDL2 REQUIRED)
 add_executable(
     BeLight
     src/main.cpp
+    src/renderer.cpp
+    src/mathematics.cpp
 )
 
 # Link the required system libraries to the executable
