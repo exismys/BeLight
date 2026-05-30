@@ -3,8 +3,16 @@
 #include <cstdint>
 #include <vector>
 
+enum class RenderMode {
+    Software,
+    SDL
+};
+
+RenderMode mode = RenderMode::SDL;
+
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
+
 struct Renderer {
     int width;
     int height;
@@ -102,22 +110,36 @@ int main() {
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     running = false;
                 }
+
+                if (event.key.keysym.sym == SDLK_1) {
+                    mode = RenderMode::Software;
+                }
+                if (event.key.keysym.sym == SDLK_2) {
+                    mode = RenderMode::SDL;
+                }
             }
         }
 
-        // Update framebuffer
-        std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
-        put_pixel(renderer, renderer.width / 2, renderer.height / 2, 0xFFFFFFFF);
+        if (mode == RenderMode::Software) {
+            // Update framebuffer
+            std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
+            put_pixel(renderer, renderer.width / 2, renderer.height / 2, 0xFFFFFFFF);
 
-        SDL_UpdateTexture(
-            texture,
-            nullptr,
-            renderer.framebuffer.data(),
-            renderer.width * sizeof(uint32_t)
-        );
+            SDL_UpdateTexture(
+                texture,
+                nullptr,
+                renderer.framebuffer.data(),
+                renderer.width * sizeof(uint32_t)
+            );
 
-        SDL_RenderClear(sdl_renderer);
-        SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
+            SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
+        } else {
+            SDL_SetRenderDrawColor(sdl_renderer, 32, 32, 32, 255);
+            SDL_RenderClear(sdl_renderer);
+            SDL_SetRenderDrawColor(sdl_renderer, 255, 255, 255, 255);
+            SDL_RenderDrawLine(sdl_renderer, 100, 100, 700, 500);
+        }
+
         SDL_RenderPresent(sdl_renderer);
     }
 
