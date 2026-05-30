@@ -27,7 +27,7 @@ int main() {
         SDL_WINDOWPOS_CENTERED,
         WIDTH,
         HEIGHT,
-        SDL_WINDOW_SHOWN
+        SDL_WINDOW_RESIZABLE
     );
 
     if (window == nullptr) {
@@ -77,17 +77,43 @@ int main() {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
+
+            // Window resize event
+            if (event.type == SDL_WINDOWEVENT) {
+                if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                    int width = event.window.data1;
+                    int height = event.window.data2;
+                    renderer.width = width;
+                    renderer.height = height;
+                    renderer.framebuffer.resize(width * height);
+                    SDL_DestroyTexture(texture);
+                    texture = SDL_CreateTexture(
+                        sdl_renderer,
+                        SDL_PIXELFORMAT_ARGB8888,
+                        SDL_TEXTUREACCESS_STREAMING,
+                        width,
+                        height
+                    );
+                }
+            }
+
+            // Key events
+            if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    running = false;
+                }
+            }
         }
 
         // Update framebuffer
         std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
-        put_pixel(renderer, WIDTH / 2, HEIGHT / 2, 0xFFFFFFFF);
+        put_pixel(renderer, renderer.width / 2, renderer.height / 2, 0xFFFFFFFF);
 
         SDL_UpdateTexture(
             texture,
             nullptr,
             renderer.framebuffer.data(),
-            WIDTH * sizeof(uint32_t)
+            renderer.width * sizeof(uint32_t)
         );
 
         SDL_RenderClear(sdl_renderer);
