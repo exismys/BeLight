@@ -14,6 +14,8 @@ add_executable(
     src/main.cpp
     src/renderer.cpp
     src/mathematics.cpp
+    src/renderer_sdl.cpp
+    src/objects.cpp
 )
 
 # Link the required system libraries to the executable

@@ -4,6 +4,7 @@
 #include <vector>
 #include <chrono>
 #include "renderer.h"
+#include "renderer_sdl.h"
 #include "mathematics.h"
 
 enum class RenderMode {
@@ -22,7 +23,6 @@ int main() {
         return 1;
     }
 
-
     SDL_Window* window = SDL_CreateWindow(
         "BeLight",
         SDL_WINDOWPOS_CENTERED,
@@ -31,7 +31,6 @@ int main() {
         HEIGHT,
         SDL_WINDOW_RESIZABLE
     );
-
     if (window == nullptr) {
         std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << '\n';
         SDL_Quit();
@@ -65,16 +64,23 @@ int main() {
         return 1;
     }
 
+    // custom struct defined in renderer.h for software mode 
     Renderer renderer{
         WIDTH,
         HEIGHT,
         std::vector<uint32_t>(WIDTH * HEIGHT)
     };
 
+    // custom struct defined in renderer_sdl.h for sdl mode
+    Renderer_SDL renderer_sdl = Renderer_SDL{
+        sdl_renderer,
+        WIDTH,
+        HEIGHT
+    };
+
     auto start_time = std::chrono::steady_clock::now();
     double accumulator = 0.0;
     constexpr double dt = 1.0 / 60.0;
-
 
     bool running = true;
     SDL_Event event;
@@ -133,7 +139,6 @@ int main() {
         if (mode == RenderMode::Software) {
             // Update framebuffer
             std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
-            
 
             draw_point(renderer, Vec2 {static_cast<float>(renderer.width / 4), static_cast<float>(renderer.height / 4)}, 0xFFFFFFFF);
 
