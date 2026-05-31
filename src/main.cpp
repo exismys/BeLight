@@ -78,13 +78,12 @@ int main() {
         HEIGHT
     };
 
-    Particle particle{
-        Vec2 {10, 10},
-        Vec2 {10, 10},
-        Vec2 {0, 0},
-        10,
-        0xFFFFFFFF
-    };
+    std::vector<Particle> particles;
+    particles.push_back(Particle{Vec2 {-200, -200}, Vec2 {0, 0}, Vec2 {0, 0}, 1.0, 10.0, 0xFFFFFFFF});
+    particles.push_back(Particle{Vec2 {-200, -100}, Vec2 {0, 0}, Vec2 {0, 0}, 2.0, 20.0, 0xFFFFFFFF});
+    particles.push_back(Particle{Vec2 {-200, 0000}, Vec2 {0, 0}, Vec2 {0, 0}, 3.0, 30.0, 0xFFFFFFFF});
+    particles.push_back(Particle{Vec2 {-200, 0100}, Vec2 {0, 0}, Vec2 {0, 0}, 4.0, 40.0, 0xFFFFFFFF});
+
 
     auto start_time = std::chrono::steady_clock::now();
     double accumulator = 0.0;
@@ -140,7 +139,14 @@ int main() {
         // Fixed timestep integration
         accumulator += frame_time;
         while (accumulator >= dt) {
-            // Update
+            if (mode == RenderMode::Software) {
+
+            } else {
+                for (int i = 0; i < particles.size(); i++) {
+                    update_particle(particles[i], dt);
+                    apply_force(particles[i], Vec2 {1, 0.0});
+                }
+            }
             accumulator -= dt;
         }
 
@@ -162,8 +168,11 @@ int main() {
             SDL_SetRenderDrawColor(sdl_renderer, 32, 32, 32, 255);
             SDL_RenderClear(sdl_renderer);
             SDL_SetRenderDrawColor(sdl_renderer, 255, 255, 255, 255);
-            SDL_RenderDrawLine(sdl_renderer, 100, 100, 700, 500);
-            draw_particle_sdl(renderer_sdl, particle);   
+            // SDL_RenderDrawLine(sdl_renderer, 100, 100, 700, 500);
+            
+            for (int i = 0; i < particles.size(); i++) {
+                draw_particle_sdl(renderer_sdl, particles[i]);   
+            }
         }
 
         SDL_RenderPresent(sdl_renderer);
