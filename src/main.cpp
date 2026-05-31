@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <cstdint>
 #include <vector>
@@ -72,18 +73,25 @@ int main() {
     };
 
     // custom struct defined in renderer_sdl.h for sdl mode
+    if (TTF_Init() == -1) {
+        std::cerr << TTF_GetError() << '\n';
+        return 1;
+    }
+    TTF_Font* font = TTF_OpenFont("assets/fonts/UbuntuMono[wght].ttf", 20);
+    if (!font) {
+        std::cerr << TTF_GetError << '\n';
+    }
     Renderer_SDL renderer_sdl = Renderer_SDL{
         sdl_renderer,
+        font,
         WIDTH,
         HEIGHT
     };
 
     std::vector<Particle> particles;
-    particles.push_back(Particle{Vec2 {-200, -200}, Vec2 {0, 0}, Vec2 {0, 0}, 1.0, 10.0, 0xFFFFFFFF});
-    particles.push_back(Particle{Vec2 {-200, -100}, Vec2 {0, 0}, Vec2 {0, 0}, 2.0, 20.0, 0xFFFFFFFF});
-    particles.push_back(Particle{Vec2 {-200, 0000}, Vec2 {0, 0}, Vec2 {0, 0}, 3.0, 30.0, 0xFFFFFFFF});
-    particles.push_back(Particle{Vec2 {-200, 0100}, Vec2 {0, 0}, Vec2 {0, 0}, 4.0, 40.0, 0xFFFFFFFF});
-
+    for (int i = 0; i < 4; i++) {
+        particles.push_back(Particle{ Vec2{-200.0f, -200.0f + i * 100}, Vec2{0, 0}, Vec2{0, 0}, float(i + 1), float(i + 1) * 10, 0xFFFFFFFF});
+    }
 
     auto start_time = std::chrono::steady_clock::now();
     double accumulator = 0.0;
@@ -170,6 +178,7 @@ int main() {
             SDL_SetRenderDrawColor(sdl_renderer, 255, 255, 255, 255);
             // SDL_RenderDrawLine(sdl_renderer, 100, 100, 700, 500);
             
+            // draw_text_sdl(renderer_sdl, "Hello", Vec2{50, 50});
             for (int i = 0; i < particles.size(); i++) {
                 draw_particle_sdl(renderer_sdl, particles[i]);   
             }
@@ -177,8 +186,13 @@ int main() {
 
         SDL_RenderPresent(sdl_renderer);
     }
+    TTF_CloseFont(font);
 
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(window);
+
+    TTF_Quit();
     SDL_Quit();
 
     return 0;
