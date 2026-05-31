@@ -78,6 +78,14 @@ int main() {
         HEIGHT
     };
 
+    Particle particle{
+        Vec2 {10, 10},
+        Vec2 {10, 10},
+        Vec2 {0, 0},
+        10,
+        0xFFFFFFFF
+    };
+
     auto start_time = std::chrono::steady_clock::now();
     double accumulator = 0.0;
     constexpr double dt = 1.0 / 60.0;
@@ -155,6 +163,7 @@ int main() {
             SDL_RenderClear(sdl_renderer);
             SDL_SetRenderDrawColor(sdl_renderer, 255, 255, 255, 255);
             SDL_RenderDrawLine(sdl_renderer, 100, 100, 700, 500);
+            draw_particle_sdl(renderer_sdl, particle);   
         }
 
         SDL_RenderPresent(sdl_renderer);
