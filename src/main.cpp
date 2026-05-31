@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
+#include <chrono>
 #include "renderer.h"
 #include "mathematics.h"
 
@@ -20,6 +21,7 @@ int main() {
         std::cerr << "SDL_Init failed: " << SDL_GetError() << '\n';
         return 1;
     }
+
 
     SDL_Window* window = SDL_CreateWindow(
         "BeLight",
@@ -69,6 +71,11 @@ int main() {
         std::vector<uint32_t>(WIDTH * HEIGHT)
     };
 
+    auto start_time = std::chrono::steady_clock::now();
+    double accumulator = 0.0;
+    constexpr double dt = 1.0 / 60.0;
+
+
     bool running = true;
     SDL_Event event;
     while (running) {
@@ -112,9 +119,22 @@ int main() {
             }
         }
 
+        auto end_time = std::chrono::steady_clock::now();
+        double frame_time = std::chrono::duration<double>(end_time - start_time).count();
+        start_time = end_time;
+
+        // Fixed timestep integration
+        accumulator += frame_time;
+        while (accumulator >= dt) {
+            // Update
+            accumulator -= dt;
+        }
+
         if (mode == RenderMode::Software) {
             // Update framebuffer
             std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
+            
+
             draw_point(renderer, Vec2 {static_cast<float>(renderer.width / 4), static_cast<float>(renderer.height / 4)}, 0xFFFFFFFF);
 
             SDL_UpdateTexture(
