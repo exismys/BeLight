@@ -7,6 +7,7 @@
 #include "renderer.h"
 #include "renderer_sdl.h"
 #include "mathematics.h"
+#include "ui.h"
 
 enum class RenderMode {
     Software,
@@ -15,8 +16,8 @@ enum class RenderMode {
 
 RenderMode mode = RenderMode::SDL;
 
-constexpr uint32_t WIDTH = 800;
-constexpr uint32_t HEIGHT = 600;
+constexpr uint32_t WIDTH = 1920;
+constexpr uint32_t HEIGHT = 1080;
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -88,6 +89,20 @@ int main() {
         HEIGHT
     };
 
+    // Create buttons
+    Button button{
+        Vec2{
+            -float(WIDTH/2) + 20,
+            -float(HEIGHT/2) + 60
+        },
+        Vec2{
+            80,
+            40
+        },
+        "Button" 
+    };
+
+    // Initialize particles
     std::vector<Particle> particles;
     for (int i = 0; i < 4; i++) {
         particles.push_back(Particle{ Vec2{-200.0f, -200.0f + i * 100}, Vec2{0, 0}, Vec2{0, 0}, float(i + 1), float(i + 1) * 10, 0xFFFFFFFF});
@@ -175,8 +190,16 @@ int main() {
         } else {
             SDL_SetRenderDrawColor(sdl_renderer, 32, 32, 32, 255);
             SDL_RenderClear(sdl_renderer);
+
+            draw_button(renderer_sdl, button);
+            if (button_clicked(renderer_sdl, button)) {
+                std::cout << "clicked button " << '\n';
+            }
+
             SDL_SetRenderDrawColor(sdl_renderer, 255, 255, 255, 255);
             // SDL_RenderDrawLine(sdl_renderer, 100, 100, 700, 500);
+
+            
             
             // draw_text_sdl(renderer_sdl, "Hello", Vec2{50, 50});
             for (int i = 0; i < particles.size(); i++) {

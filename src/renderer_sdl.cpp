@@ -34,7 +34,7 @@ IVec2 world_to_screen(const Renderer_SDL& renderer, const Vec2 point) {
 
 void draw_text_sdl(Renderer_SDL& renderer, const std::string& text, Vec2 pos) {
     IVec2 screen_pos = world_to_screen(renderer, pos);
-    SDL_Color color{0, 0, 0, 0};
+    SDL_Color color{32, 32, 32, 0};
     SDL_Surface* surface = TTF_RenderText_Blended(renderer.font, text.c_str(), color);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer.renderer, surface);
     SDL_Rect dst{
