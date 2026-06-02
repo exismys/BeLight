@@ -3,12 +3,15 @@
 #include <vector>
 #include <cstdint>
 #include "mathematics.h"
+#include "simulation.h"
 
 struct Renderer {
     int width;
     int height;
     std::vector<uint32_t> framebuffer;
 };
+
+void render_simulation(Renderer& renderer, Simulation& simulation);
 
 void draw_point(Renderer& renderer, Vec2 world_point, uint32_t color);
 

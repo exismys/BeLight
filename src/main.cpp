@@ -1,20 +1,12 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+
 #include <iostream>
 #include <cstdint>
 #include <vector>
 #include <chrono>
+#include <SDL2/SDL.h>
 #include "renderer.h"
-#include "renderer_sdl.h"
 #include "mathematics.h"
-#include "ui.h"
-
-enum class RenderMode {
-    Software,
-    SDL
-};
-
-RenderMode mode = RenderMode::SDL;
+#include "simulation.h"
 
 constexpr uint32_t WIDTH = 1920;
 constexpr uint32_t HEIGHT = 1080;
@@ -66,47 +58,13 @@ int main() {
         return 1;
     }
 
-    // custom struct defined in renderer.h for software mode 
     Renderer renderer{
         WIDTH,
         HEIGHT,
         std::vector<uint32_t>(WIDTH * HEIGHT)
     };
 
-    // custom struct defined in renderer_sdl.h for sdl mode
-    if (TTF_Init() == -1) {
-        std::cerr << TTF_GetError() << '\n';
-        return 1;
-    }
-    TTF_Font* font = TTF_OpenFont("assets/fonts/UbuntuMono[wght].ttf", 20);
-    if (!font) {
-        std::cerr << TTF_GetError << '\n';
-    }
-    Renderer_SDL renderer_sdl = Renderer_SDL{
-        sdl_renderer,
-        font,
-        WIDTH,
-        HEIGHT
-    };
-
-    // Create buttons
-    Button button{
-        Vec2{
-            -float(WIDTH/2) + 20,
-            -float(HEIGHT/2) + 60
-        },
-        Vec2{
-            80,
-            40
-        },
-        "Button" 
-    };
-
-    // Initialize particles
-    std::vector<Particle> particles;
-    for (int i = 0; i < 4; i++) {
-        particles.push_back(Particle{ Vec2{-200.0f, -200.0f + i * 100}, Vec2{0, 0}, Vec2{0, 0}, float(i + 1), float(i + 1) * 10, 0xFFFFFFFF});
-    }
+    Simulation simulation = create_simulation();
 
     auto start_time = std::chrono::steady_clock::now();
     double accumulator = 0.0;
@@ -145,13 +103,6 @@ int main() {
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     running = false;
                 }
-
-                if (event.key.keysym.sym == SDLK_1) {
-                    mode = RenderMode::Software;
-                }
-                if (event.key.keysym.sym == SDLK_2) {
-                    mode = RenderMode::SDL;
-                }
             }
         }
 
@@ -159,63 +110,34 @@ int main() {
         double frame_time = std::chrono::duration<double>(end_time - start_time).count();
         start_time = end_time;
 
+        // Update simulation
         // Fixed timestep integration
         accumulator += frame_time;
         while (accumulator >= dt) {
-            if (mode == RenderMode::Software) {
-
-            } else {
-                for (int i = 0; i < particles.size(); i++) {
-                    update_particle(particles[i], dt);
-                    apply_force(particles[i], Vec2 {1, 0.0});
-                }
-            }
+            update_simulation(simulation, dt);
             accumulator -= dt;
         }
 
-        if (mode == RenderMode::Software) {
-            // Update framebuffer
-            std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
+        // Clear framebuffer
+        std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
 
-            draw_point(renderer, Vec2 {static_cast<float>(renderer.width / 4), static_cast<float>(renderer.height / 4)}, 0xFFFFFFFF);
+        // Modify framebuffer
+        render_simulation(renderer, simulation);
 
-            SDL_UpdateTexture(
-                texture,
-                nullptr,
-                renderer.framebuffer.data(),
-                renderer.width * sizeof(uint32_t)
-            );
-
-            SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
-        } else {
-            SDL_SetRenderDrawColor(sdl_renderer, 32, 32, 32, 255);
-            SDL_RenderClear(sdl_renderer);
-
-            draw_button(renderer_sdl, button);
-            if (button_clicked(renderer_sdl, button)) {
-                std::cout << "clicked button " << '\n';
-            }
-
-            SDL_SetRenderDrawColor(sdl_renderer, 255, 255, 255, 255);
-            // SDL_RenderDrawLine(sdl_renderer, 100, 100, 700, 500);
-
-            
-            
-            // draw_text_sdl(renderer_sdl, "Hello", Vec2{50, 50});
-            for (int i = 0; i < particles.size(); i++) {
-                draw_particle_sdl(renderer_sdl, particles[i]);   
-            }
-        }
+        SDL_UpdateTexture(
+            texture,
+            nullptr,
+            renderer.framebuffer.data(),
+            renderer.width * sizeof(uint32_t)
+        );
 
         SDL_RenderPresent(sdl_renderer);
     }
-    TTF_CloseFont(font);
 
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(window);
 
-    TTF_Quit();
     SDL_Quit();
 
     return 0;

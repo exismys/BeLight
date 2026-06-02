@@ -1,11 +1,25 @@
+#include <iostream>
 #include "renderer.h"
 #include "mathematics.h"
-#include <iostream>
+
+
+void render_simulation(Renderer& renderer, Simulation& simulation) {
+    for (Particle& particle: simulation.particles) {
+        std::cout << "x: " << particle.pos.x << ", y: " << particle.pos.y << '\n';
+        draw_point(renderer, particle.pos, particle.color);
+    }
+}
 
 void draw_point(Renderer& renderer, Vec2 world_point, uint32_t color) {
     IVec2 screen_point = world_to_screen(renderer, world_point);
     put_pixel(renderer, screen_point, color);
+}
 
+IVec2 world_to_screen(const Renderer& renderer, const Vec2 point) {
+    return IVec2{
+        static_cast<int>(renderer.width / 2 + point.x),
+        static_cast<int>(renderer.height / 2 - point.y)
+    };
 }
 
 void put_pixel(Renderer& renderer, IVec2 screen_point, uint32_t color) {
@@ -17,11 +31,4 @@ void put_pixel(Renderer& renderer, IVec2 screen_point, uint32_t color) {
         exit(1);
     }
     renderer.framebuffer[screen_point.y * renderer.width + screen_point.x] = color;
-}
-
-IVec2 world_to_screen(const Renderer& renderer, const Vec2 point) {
-    return IVec2{
-        static_cast<int>(renderer.width / 2 + point.x),
-        static_cast<int>(renderer.height / 2 - point.y)
-    };
 }
