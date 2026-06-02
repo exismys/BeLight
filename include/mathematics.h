@@ -23,3 +23,28 @@ Vec2& operator/=(Vec2& a, float b);
 IVec2 operator+(const IVec2& a, const IVec2& b);
 IVec2 operator-(const IVec2& a, const IVec2& b);
 Vec2 operator*(const IVec2& a, float b);
+
+struct Vec3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct IVec3 {
+  int x;
+  int y;
+  int z;
+};
+
+Vec3 operator+(const Vec3& a, const Vec3& b);
+Vec3& operator+=(Vec3& a, const Vec2& b);
+Vec3 operator-(const Vec3& a, const Vec3& b);
+Vec3& operator-=(Vec3& a, const Vec3& b);
+Vec3 operator*(const Vec3& a, float b);
+Vec3& operator*=(Vec3& a, float b);
+Vec3 operator/(const Vec3& a, float b); 
+Vec3& operator/=(Vec3& a, float b);
+
+IVec3 operator+(const IVec3& a, const IVec3& b);
+IVec3 operator-(const IVec3& a, const IVec3& b);
+Vec3 operator*(const IVec3& a, float b);
