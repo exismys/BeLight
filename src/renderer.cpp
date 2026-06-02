@@ -5,7 +5,7 @@
 
 void render_simulation(Renderer& renderer, Simulation& simulation) {
     for (Particle& particle: simulation.particles) {
-        std::cout << "x: " << particle.pos.x << ", y: " << particle.pos.y << '\n';
+        // std::cout << "x: " << particle.pos.x << ", y: " << particle.pos.y << '\n';
         draw_point(renderer, particle.pos, particle.color);
     }
 }
@@ -24,8 +24,8 @@ IVec2 world_to_screen(const Renderer& renderer, const Vec2 point) {
 
 void put_pixel(Renderer& renderer, IVec2 screen_point, uint32_t color) {
     if (
-        screen_point.x >= renderer.width || screen_point.x <= 0 ||
-        screen_point.y >= renderer.height || screen_point.y <= 0
+        screen_point.x >= renderer.width || screen_point.x < 0 ||
+        screen_point.y >= renderer.height || screen_point.y < 0
     ) {
         std::cerr << "Error: Invalid screen point" << screen_point.x << ", " << screen_point.y << '\n';
         exit(1);

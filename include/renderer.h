@@ -6,9 +6,9 @@
 #include "simulation.h"
 
 struct Renderer {
+    std::vector<uint32_t> framebuffer;
     int width;
     int height;
-    std::vector<uint32_t> framebuffer;
 };
 
 void render_simulation(Renderer& renderer, Simulation& simulation);

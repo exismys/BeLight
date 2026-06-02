@@ -59,9 +59,9 @@ int main() {
     }
 
     Renderer renderer{
+        std::vector<uint32_t>(WIDTH * HEIGHT),
         WIDTH,
-        HEIGHT,
-        std::vector<uint32_t>(WIDTH * HEIGHT)
+        HEIGHT
     };
 
     Simulation simulation = create_simulation();
@@ -95,6 +95,10 @@ int main() {
                         width,
                         height
                     );
+                    if (texture == nullptr) {
+                        std::cerr << SDL_GetError() << '\n';
+                        running = false;
+                    }
                 }
             }
 
@@ -131,6 +135,7 @@ int main() {
             renderer.width * sizeof(uint32_t)
         );
 
+        SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
         SDL_RenderPresent(sdl_renderer);
     }
 
