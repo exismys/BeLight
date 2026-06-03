@@ -112,6 +112,7 @@ void main_loop(Renderer& renderer, Scene& scene) {
             Vec2 point = Vec2{x, y};
             Vec3 direction = screen_to_viewport(point);
             uint32_t color = trace_ray(camera_position, direction, 1, std::numeric_limits<float>::infinity(), scene);
+            renderer.framebuffer[y * screen_width + x] = color;
         }
     }
 }
