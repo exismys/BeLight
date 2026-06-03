@@ -45,6 +45,8 @@ Vec3& operator*=(Vec3& a, float b);
 Vec3 operator/(const Vec3& a, float b); 
 Vec3& operator/=(Vec3& a, float b);
 
+float dot_product(Vec3 a, Vec3 b);
+
 IVec3 operator+(const IVec3& a, const IVec3& b);
 IVec3 operator-(const IVec3& a, const IVec3& b);
 Vec3 operator*(const IVec3& a, float b);

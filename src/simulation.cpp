@@ -1,3 +1,4 @@
+#include <iostream>
 #include "simulation.h"
 
 Simulation create_simulation() {
@@ -12,9 +13,10 @@ Simulation create_simulation() {
     };
 }
 
-
 void update_simulation(Simulation& sim, float dt) {
+    // std::cout << "particle.acc: " << sim.particles[0].acc.x << '\n';
     for (Particle& particle: sim.particles) {
+        apply_force(particle, Vec2{1.0, 1.0});
         update_particle(particle, dt);
     }
 }
@@ -25,5 +27,5 @@ void update_particle(Particle& particle, float dt) {
 }
 
 void apply_force(Particle& particle, Vec2 force) {
-    particle.acc += force / particle.mass;
+    particle.acc = force / particle.mass;
 }

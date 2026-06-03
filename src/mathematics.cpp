@@ -17,7 +17,7 @@ Vec3& operator+=(Vec3& a, const Vec3& b) {
 }
 
 Vec3 operator-(const Vec3& a, const Vec3& b) {
-    return Vec3{
+    return Vec3 {
         a.x - b.x,
         a.y - b.y,
         a.z - b.z
@@ -83,6 +83,10 @@ Vec3 operator*(const IVec3& a, float b) {
         a.y * b,
         a.z * b
     };
+}
+
+float dot_product(Vec3 a, Vec3 b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 // Vec2 operator overloads
