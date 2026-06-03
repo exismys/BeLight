@@ -4,10 +4,10 @@
 #include <vector>
 #include <chrono>
 #include <SDL2/SDL.h>
-#include "renderer.h"
-#include "mathematics.h"
-#include "simulation.h"
-#include "ray_tracing.h"
+#include "renderer.hpp"
+#include "mathematics.hpp"
+#include "simulation.hpp"
+#include "ray_tracing.hpp"
 
 constexpr uint32_t WIDTH = 1000;
 constexpr uint32_t HEIGHT = 1000;

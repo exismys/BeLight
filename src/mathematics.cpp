@@ -1,4 +1,4 @@
-#include "mathematics.h"
+#include "mathematics.hpp"
 
 // Vector 3 operator overloads
 Vec3 operator+(const Vec3& a, const Vec3& b) {

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "simulation.h"
+#include "simulation.hpp"
 
 Simulation create_simulation() {
     // Initialize particles

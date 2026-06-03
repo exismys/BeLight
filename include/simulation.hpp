@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <vector>
-#include "mathematics.h"
+#include "mathematics.hpp"
 
 struct Particle {
     Vec2 pos;

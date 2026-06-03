@@ -2,8 +2,8 @@
 
 #include <vector>
 #include <cstdint>
-#include "mathematics.h"
-#include "simulation.h"
+#include "mathematics.hpp"
+#include "simulation.hpp"
 
 struct Renderer {
     std::vector<uint32_t> framebuffer;

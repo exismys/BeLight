@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
-#include "renderer.h"
-#include "mathematics.h"
+#include "renderer.hpp"
+#include "mathematics.hpp"
 
 void render_simulation(Renderer& renderer, Simulation& simulation) {
     for (Particle& particle: simulation.particles) {

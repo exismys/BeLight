@@ -6,8 +6,8 @@
 #include <limits>
 #include <utility>
 #include <cmath>
-#include "mathematics.h"
-#include "renderer.h"
+#include "mathematics.hpp"
+#include "renderer.hpp"
 
 // Simulation constants
 int screen_width = 600;
