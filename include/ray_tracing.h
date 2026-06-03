@@ -13,7 +13,8 @@
 int screen_width = 600;
 int screen_height = 600;
 constexpr float viewport_size = 1;
-constexpr float projection_plane_z = 1;
+float viewport_x = 0;
+float projection_plane_z = 1;
 constexpr Vec3 camera_position = Vec3{0, 0, 0};
 constexpr uint32_t background_color = 0xFFFFFFFF;
 
@@ -60,7 +61,7 @@ Scene create_scene() {
 
 Vec3 screen_to_viewport(Vec2& point) {
     return Vec3{
-        point.x * viewport_size / screen_width,
+        point.x * viewport_size / screen_width + viewport_x,
         point.y * viewport_size / screen_height,
         projection_plane_z
     };
@@ -117,4 +118,12 @@ void main_loop(Renderer& renderer, Scene& scene) {
             draw_point(renderer, Vec2{float(x), float(y)}, color);
         }
     }
+}
+
+void update_projection_plane_z(float change) {
+    projection_plane_z += change;
+}
+
+void update_viewport_x(float change) {
+    viewport_x += change;
 }

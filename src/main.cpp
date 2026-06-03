@@ -7,7 +7,7 @@
 #include "renderer.h"
 #include "mathematics.h"
 #include "simulation.h"
-#include "3d.h"
+#include "ray_tracing.h"
 
 constexpr uint32_t WIDTH = 1000;
 constexpr uint32_t HEIGHT = 1000;
@@ -108,6 +108,19 @@ int main() {
             if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     running = false;
+                }
+            }
+
+            // Mouse events
+            if (event.type == SDL_MOUSEWHEEL) {
+                update_projection_plane_z(event.wheel.y * 0.1f);
+            }
+
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    update_viewport_x(0.1);
+                } else if (event.button.button == SDL_BUTTON_RIGHT) {
+                    update_viewport_x(-0.1);
                 }
             }
         }
