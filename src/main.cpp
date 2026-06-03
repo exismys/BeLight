@@ -9,8 +9,8 @@
 #include "simulation.h"
 #include "3d.h"
 
-constexpr uint32_t WIDTH = 600;
-constexpr uint32_t HEIGHT = 600;
+constexpr uint32_t WIDTH = 1000;
+constexpr uint32_t HEIGHT = 1000;
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {

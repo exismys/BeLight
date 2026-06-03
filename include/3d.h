@@ -10,8 +10,8 @@
 #include "renderer.h"
 
 // Simulation constants
-constexpr int screen_width = 600;
-constexpr int screen_height = 600;
+int screen_width = 600;
+int screen_height = 600;
 constexpr float viewport_size = 1;
 constexpr float projection_plane_z = 1;
 constexpr Vec3 camera_position = Vec3{0, 0, 0};
@@ -34,21 +34,21 @@ Scene create_scene() {
             Sphere{
                 Vec3 {0, -1, 3},
                 1,
-                0xFFFFFFFF
+                0x000000FF
             }
         );
         spheres.push_back(
             Sphere{
                 Vec3 {-2, 0, 4},
                 1,
-                0xFFFFFFFF
+                0x0000FF00
             }
         );
         spheres.push_back(
             Sphere{
                 Vec3 {2, 0, 4},
                 1,
-                0xFFFFFFFF
+                0x00FF0000
             }
         );
     // }
@@ -107,12 +107,14 @@ uint32_t trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene&
 }
 
 void main_loop(Renderer& renderer, Scene& scene) {
+    screen_width = renderer.width;
+    screen_height = renderer.height;
     for (int x = - screen_width / 2; x < screen_width / 2; x++) {
         for (int y = - screen_height / 2; y < screen_height / 2; y++) {
             Vec2 point = Vec2{x, y};
             Vec3 direction = screen_to_viewport(point);
             uint32_t color = trace_ray(camera_position, direction, 1, std::numeric_limits<float>::infinity(), scene);
-            put_pixel(renderer, IVec2{x, y}, color);
+            draw_point(renderer, Vec2{float(x), float(y)}, color);
         }
     }
 }
