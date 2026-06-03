@@ -7,9 +7,10 @@
 #include "renderer.h"
 #include "mathematics.h"
 #include "simulation.h"
+#include "3d.h"
 
-constexpr uint32_t WIDTH = 1920;
-constexpr uint32_t HEIGHT = 1080;
+constexpr uint32_t WIDTH = 600;
+constexpr uint32_t HEIGHT = 600;
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -64,7 +65,8 @@ int main() {
         HEIGHT
     };
 
-    Simulation simulation = create_simulation();
+    // Simulation simulation = create_simulation();
+    Scene scene = create_scene();
 
     auto start_time = std::chrono::steady_clock::now();
     double accumulator = 0.0;
@@ -118,7 +120,7 @@ int main() {
         // Fixed timestep integration
         accumulator += frame_time;
         while (accumulator >= dt) {
-            update_simulation(simulation, dt);
+            // update_simulation(simulation, dt);
             accumulator -= dt;
         }
 
@@ -126,7 +128,9 @@ int main() {
         std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
 
         // Modify framebuffer
-        render_simulation(renderer, simulation);
+        // render_simulation(renderer, simulation);
+        main_loop(renderer, scene);
+
 
         SDL_UpdateTexture(
             texture,
