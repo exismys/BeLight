@@ -8,6 +8,7 @@
 #include <cmath>
 #include "mathematics.hpp"
 #include "renderer.hpp"
+#include "types.hpp"
 
 // Simulation constants
 int screen_width = 600;
@@ -16,7 +17,7 @@ constexpr float viewport_size = 1;
 float viewport_x = 0;
 float projection_plane_z = 1;
 constexpr Vec3 camera_position = Vec3{0, 0, 0};
-constexpr uint32_t background_color = 0xFFFFFFFF;
+constexpr Color background_color = Color{255, 255, 255};
 
 enum class LightType {
     Point,
@@ -27,7 +28,7 @@ enum class LightType {
 struct Sphere {
     Vec3 pos;
     float radius;
-    uint32_t color;
+    Color color;
 };
 
 struct Light {
@@ -49,21 +50,21 @@ Scene create_scene() {
             Sphere{
                 Vec3 {0, -1, 3},
                 1,
-                0x000000FF
+                Color{0, 0, 255, 255}
             }
         );
         spheres.push_back(
             Sphere{
                 Vec3 {-2, 0, 4},
                 1,
-                0x0000FF00
+                Color{0, 255, 0, 255}
             }
         );
         spheres.push_back(
             Sphere{
                 Vec3 {2, 0, 4},
                 1,
-                0x00FF0000
+                Color{0, 0, 255, 255}
             }
         );
     // }
@@ -144,7 +145,7 @@ std::pair<float, float> intersect_ray_sphere(Vec3 origin, Vec3 direction, Sphere
     return {t1, t2};
 }
 
-uint32_t trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& scene) {
+Color trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& scene) {
     float closest_t = std::numeric_limits<float>::infinity();
     Sphere closest_sphere = Sphere{};
     for (Sphere& sphere: scene.spheres) {
@@ -178,7 +179,7 @@ void main_loop(Renderer& renderer, Scene& scene) {
         for (int y = - screen_height / 2; y < screen_height / 2; y++) {
             Vec2 point = Vec2{static_cast<float>(x), static_cast<float>(y)};
             Vec3 direction = screen_to_viewport(point);
-            uint32_t color = trace_ray(camera_position, direction, 1, std::numeric_limits<float>::infinity(), scene);
+            Color color = trace_ray(camera_position, direction, 1, std::numeric_limits<float>::infinity(), scene);
             draw_point(renderer, Vec2{float(x), float(y)}, color);
         }
     }

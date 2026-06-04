@@ -14,7 +14,7 @@ void render_simulation(Renderer& renderer, Simulation& simulation) {
 
 
 // Geometry
-void draw_circle_solid(Renderer& renderer, Vec2 pos, float radius, uint32_t color) {
+void draw_circle_solid(Renderer& renderer, Vec2 pos, float radius, Color color) {
     IVec2 screen_pos = world_to_screen(renderer, pos);
 
     int cx = screen_pos.x;
@@ -34,7 +34,7 @@ void draw_circle_solid(Renderer& renderer, Vec2 pos, float radius, uint32_t colo
 }
 
 // put_pixel primitive setup
-void draw_point(Renderer& renderer, Vec2 world_point, uint32_t color) {
+void draw_point(Renderer& renderer, Vec2 world_point, Color color) {
     IVec2 screen_point = world_to_screen(renderer, world_point);
     put_pixel(renderer, screen_point, color);
 }
@@ -46,7 +46,7 @@ IVec2 world_to_screen(const Renderer& renderer, const Vec2 point) {
     };
 }
 
-void put_pixel(Renderer& renderer, IVec2 screen_point, uint32_t color) {
+void put_pixel(Renderer& renderer, IVec2 screen_point, Color color) {
     if (
         screen_point.x >= renderer.width || screen_point.x < 0 ||
         screen_point.y >= renderer.height || screen_point.y < 0
@@ -54,5 +54,12 @@ void put_pixel(Renderer& renderer, IVec2 screen_point, uint32_t color) {
         // std::cerr << "Error: Invalid screen point" << screen_point.x << ", " << screen_point.y << '\n';
         return;
     }
-    renderer.framebuffer[screen_point.y * renderer.width + screen_point.x] = color;
+
+    uint32_t rgba = (
+        (color.a << 24) |
+        (color.r << 16) |
+        (color.g << 8) |
+        color.b
+    );
+    renderer.framebuffer[screen_point.y * renderer.width + screen_point.x] = rgba;
 }

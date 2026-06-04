@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include "mathematics.hpp"
+#include "types.hpp"
 
 struct Particle {
     Vec2 pos;
@@ -10,7 +11,7 @@ struct Particle {
     Vec2 acc;
     float mass;
     float radius;
-    uint32_t color; 
+    Color color; 
 };
 
 struct Simulation {
