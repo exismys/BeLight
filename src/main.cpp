@@ -9,8 +9,8 @@
 #include "simulation.hpp"
 #include "ray_tracing.hpp"
 
-constexpr uint32_t WIDTH = 1000;
-constexpr uint32_t HEIGHT = 1000;
+constexpr uint32_t WIDTH = 1200;
+constexpr uint32_t HEIGHT = 1200;
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {

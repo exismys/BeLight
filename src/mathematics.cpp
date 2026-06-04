@@ -1,3 +1,4 @@
+#include <cmath>
 #include "mathematics.hpp"
 
 // Vector 3 operator overloads
@@ -85,8 +86,12 @@ Vec3 operator*(const IVec3& a, float b) {
     };
 }
 
-float dot_product(Vec3 a, Vec3 b) {
+float dot_product(const Vec3& a, const Vec3& b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+float magnitude(const Vec3& a) {
+    return std::sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 }
 
 // Vec2 operator overloads

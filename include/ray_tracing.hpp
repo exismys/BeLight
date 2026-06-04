@@ -18,14 +18,28 @@ float projection_plane_z = 1;
 constexpr Vec3 camera_position = Vec3{0, 0, 0};
 constexpr uint32_t background_color = 0xFFFFFFFF;
 
+enum class LightType {
+    Point,
+    Directional,
+    Ambient
+};
+
 struct Sphere {
     Vec3 pos;
     float radius;
     uint32_t color;
 };
 
+struct Light {
+    LightType type;
+    float intensity;
+    Vec3 position;
+    Vec3 direction;
+};
+
 struct Scene {
-   std::vector<Sphere> spheres; 
+   std::vector<Sphere> spheres;
+   std::vector<Light> light_sources; 
 };
 
 Scene create_scene() {
@@ -54,8 +68,31 @@ Scene create_scene() {
         );
     // }
 
+    std::vector<Light> light_sources;
+    light_sources.push_back(
+        Light{
+            .type = LightType::Ambient,
+            .intensity = 0.2, 
+        }
+    );
+    light_sources.push_back(
+        Light{
+            .type = LightType::Point,
+            .intensity = 0.6, 
+            .position = Vec3{2, 1, 0},
+        }
+    );
+    light_sources.push_back(
+        Light{
+            .type = LightType::Directional,
+            .intensity = 0.2, 
+            .direction = Vec3{1, 4, 4},
+        }
+    );
+
     return Scene{
-        spheres
+        spheres,
+        light_sources
     };
 }
 
@@ -65,6 +102,27 @@ Vec3 screen_to_viewport(Vec2& point) {
         point.y * viewport_size / screen_height,
         projection_plane_z
     };
+}
+
+float compute_lighting(Vec3 point, Vec3 normal, Scene& scene) {
+    float i = 0.0f;
+    for (Light& light: scene.light_sources) {
+        if (light.type == LightType::Ambient) {
+            i += light.intensity;
+        } else {
+            Vec3 l;
+            if (light.type == LightType::Point) {
+                l = light.position - point;
+            } else {
+                l = light.direction;
+            }
+            float n_dot_l = dot_product(normal, l);
+            if (n_dot_l > 0) {
+                i += light.intensity * n_dot_l / (magnitude(normal) * magnitude(l));
+            }
+        }
+    }
+    return i;
 }
 
 std::pair<float, float> intersect_ray_sphere(Vec3 origin, Vec3 direction, Sphere sphere) {
@@ -104,7 +162,13 @@ uint32_t trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene&
         return background_color;
     } 
 
-    return closest_sphere.color;
+    Vec3 point = origin + direction * closest_t;
+    Vec3 normal_with_mag = (point - closest_sphere.pos);
+    Vec3 normal = normal_with_mag / magnitude(normal_with_mag);
+    
+    float light_intensity = compute_lighting(point, normal, scene);
+
+    return closest_sphere.color * light_intensity;
 }
 
 void main_loop(Renderer& renderer, Scene& scene) {
@@ -112,7 +176,7 @@ void main_loop(Renderer& renderer, Scene& scene) {
     screen_height = renderer.height;
     for (int x = - screen_width / 2; x < screen_width / 2; x++) {
         for (int y = - screen_height / 2; y < screen_height / 2; y++) {
-            Vec2 point = Vec2{x, y};
+            Vec2 point = Vec2{static_cast<float>(x), static_cast<float>(y)};
             Vec3 direction = screen_to_viewport(point);
             uint32_t color = trace_ray(camera_position, direction, 1, std::numeric_limits<float>::infinity(), scene);
             draw_point(renderer, Vec2{float(x), float(y)}, color);
