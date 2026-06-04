@@ -109,6 +109,13 @@ int main() {
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     running = false;
                 }
+
+                if (event.key.keysym.sym == SDLK_1) {
+                    update_light_pos(scene, -0.1f);
+                }
+                if (event.key.keysym.sym == SDLK_2) {
+                    update_light_pos(scene, 0.1f);
+                }
             }
 
             // Mouse events

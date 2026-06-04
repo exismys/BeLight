@@ -67,6 +67,13 @@ Scene create_scene() {
                 Color{0, 0, 255, 255}
             }
         );
+        spheres.push_back(
+            Sphere{
+                Vec3 {0, -5001, 4},
+                5000,
+                Color{0, 255, 255, 0}
+            }
+        );
     // }
 
     std::vector<Light> light_sources;
@@ -191,4 +198,8 @@ void update_projection_plane_z(float change) {
 
 void update_viewport_x(float change) {
     viewport_x += change;
+}
+
+void update_light_pos(Scene& scene, float change) {
+    scene.light_sources[1].position.y += change;
 }
