@@ -9,7 +9,7 @@
 #include "simulation.hpp"
 #include "ray_tracing.hpp"
 
-constexpr uint32_t WIDTH = 1200;
+constexpr uint32_t WIDTH = 2400;
 constexpr uint32_t HEIGHT = 1200;
 
 int main() {

@@ -18,3 +18,12 @@ inline Color operator*(const Color& color, float f) {
         color.a
     };
 }
+
+inline Color operator+(const Color& c1, const Color& c2) {
+    return Color{
+        static_cast<uint8_t>(std::min(int(c1.r) + int(c2.r), 255)),
+        static_cast<uint8_t>(std::min(int(c1.g) + int(c2.g), 255)),
+        static_cast<uint8_t>(std::min(int(c1.b) + int(c2.b), 255)),
+        c1.a
+    };
+}

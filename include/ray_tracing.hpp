@@ -13,7 +13,8 @@
 // Simulation constants
 int screen_width = 600;
 int screen_height = 600;
-constexpr float viewport_size = 1;
+constexpr float viewport_size_x = 2;
+constexpr float viewport_size_y = 1;
 float viewport_x = 0;
 float projection_plane_z = 1;
 constexpr Vec3 camera_position = Vec3{0, 0, 0};
@@ -30,6 +31,7 @@ struct Sphere {
     float radius;
     Color color;
     int specular;
+    float reflective;
 };
 
 struct Light {
@@ -52,7 +54,8 @@ Scene create_scene() {
                 Vec3 {0, -1, 3},
                 1,
                 Color{0, 0, 255, 255},
-                500
+                500,
+                0.2
             }
         );
         spheres.push_back(
@@ -60,7 +63,8 @@ Scene create_scene() {
                 Vec3 {-2, 0, 4},
                 1,
                 Color{0, 255, 0, 255},
-                500
+                500,
+                0.3
             }
         );
         spheres.push_back(
@@ -68,7 +72,8 @@ Scene create_scene() {
                 Vec3 {2, 0, 4},
                 1,
                 Color{255, 0, 0, 255},
-                10
+                10,
+                0.4
             }
         );
         spheres.push_back(
@@ -76,7 +81,8 @@ Scene create_scene() {
                 Vec3 {0, -5001, 4},
                 5000,
                 Color{0, 255, 255, 255},
-                1000
+                1000,
+                0.5
             }
         );
     // }
@@ -111,8 +117,8 @@ Scene create_scene() {
 
 Vec3 screen_to_viewport(Vec2& point) {
     return Vec3{
-        point.x * viewport_size / screen_width + viewport_x,
-        point.y * viewport_size / screen_height,
+        point.x * viewport_size_x / screen_width + viewport_x,
+        point.y * viewport_size_y / screen_height,
         projection_plane_z
     };
 }
@@ -153,6 +159,10 @@ std::pair<Sphere, float> closest_intersection(Vec3 origin, Vec3 direction, float
     return {closest_sphere, closest_t};
 }
 
+Vec3 reflect_ray(Vec3 normal, Vec3 ray) {
+    return 2 * normal * dot_product(normal, ray) - ray;
+}
+
 float compute_lighting(Vec3 point, Vec3 normal, Vec3 view, int specular, Scene& scene) {
     float i = 0.0f;
     for (Light& light: scene.light_sources) {
@@ -180,7 +190,7 @@ float compute_lighting(Vec3 point, Vec3 normal, Vec3 view, int specular, Scene& 
             }
 
             if (specular != 1) {
-                Vec3 r = 2 * normal * n_dot_l - l; 
+                Vec3 r = reflect_ray(normal, l);
                 float r_dot_v = dot_product(r, view);
                 if (r_dot_v > 0) {
                     i += light.intensity * std::pow(r_dot_v / (magnitude(r) * magnitude(view)), specular);
@@ -191,7 +201,7 @@ float compute_lighting(Vec3 point, Vec3 normal, Vec3 view, int specular, Scene& 
     return i;
 }
 
-Color trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& scene) {
+Color trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& scene, int recursion_depth) {
     auto [closest_sphere, closest_t] = closest_intersection(origin, direction, min_t, max_t, scene);
 
     if (closest_sphere.radius == 0.0) {
@@ -203,8 +213,17 @@ Color trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& sc
     Vec3 normal = normal_with_mag / magnitude(normal_with_mag);
     
     float light_intensity = compute_lighting(point, normal, -direction, closest_sphere.specular, scene);
+    Color local_color =  closest_sphere.color * light_intensity;
 
-    return closest_sphere.color * light_intensity;
+    float ri = closest_sphere.reflective;
+    if (ri <= 0 || recursion_depth <= 0) {
+        return local_color;
+    }
+
+    Vec3 r = reflect_ray(normal, -direction);
+    Color reflected_color = trace_ray(point, r, 0.001, std::numeric_limits<float>::infinity(), scene, recursion_depth - 1);
+    return local_color * (1 - closest_sphere.reflective) + reflected_color * closest_sphere.reflective;
+
 }
 
 void main_loop(Renderer& renderer, Scene& scene) {
@@ -214,7 +233,7 @@ void main_loop(Renderer& renderer, Scene& scene) {
         for (int y = - screen_height / 2; y < screen_height / 2; y++) {
             Vec2 point = Vec2{static_cast<float>(x), static_cast<float>(y)};
             Vec3 direction = screen_to_viewport(point);
-            Color color = trace_ray(camera_position, direction, 1, std::numeric_limits<float>::infinity(), scene);
+            Color color = trace_ray(camera_position, direction, 1, std::numeric_limits<float>::infinity(), scene, 3);
             draw_point(renderer, Vec2{float(x), float(y)}, color);
         }
     }
