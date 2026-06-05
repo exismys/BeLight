@@ -14,8 +14,10 @@ struct IVec2 {
 Vec2 operator+(const Vec2& a, const Vec2& b);
 Vec2& operator+=(Vec2& a, const Vec2& b);
 Vec2 operator-(const Vec2& a, const Vec2& b);
+Vec2 operator-(const Vec2& a);
 Vec2& operator-=(Vec2& a, const Vec2& b);
 Vec2 operator*(const Vec2& a, float b);
+Vec2 operator*(float a, const Vec2& b);
 Vec2& operator*=(Vec2& a, float b);
 Vec2 operator/(const Vec2& a, float b); 
 Vec2& operator/=(Vec2& a, float b);
@@ -39,8 +41,10 @@ struct IVec3 {
 Vec3 operator+(const Vec3& a, const Vec3& b);
 Vec3& operator+=(Vec3& a, const Vec2& b);
 Vec3 operator-(const Vec3& a, const Vec3& b);
+Vec3 operator-(const Vec3& a);
 Vec3& operator-=(Vec3& a, const Vec3& b);
 Vec3 operator*(const Vec3& a, float b);
+Vec3 operator*(float a, const Vec3& b);
 Vec3& operator*=(Vec3& a, float b);
 Vec3 operator/(const Vec3& a, float b); 
 Vec3& operator/=(Vec3& a, float b);

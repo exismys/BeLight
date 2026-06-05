@@ -16,6 +16,5 @@ inline Color operator*(const Color& color, float f) {
         static_cast<uint8_t>(std::clamp(color.g * f, 0.0f, 255.0f)),
         static_cast<uint8_t>(std::clamp(color.b * f, 0.0f, 255.0f)),
         color.a
-       
     };
 }

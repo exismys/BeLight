@@ -17,7 +17,7 @@ constexpr float viewport_size = 1;
 float viewport_x = 0;
 float projection_plane_z = 1;
 constexpr Vec3 camera_position = Vec3{0, 0, 0};
-constexpr Color background_color = Color{255, 255, 255};
+constexpr Color background_color = Color{0, 0, 0};
 
 enum class LightType {
     Point,
@@ -29,6 +29,7 @@ struct Sphere {
     Vec3 pos;
     float radius;
     Color color;
+    int specular;
 };
 
 struct Light {
@@ -50,28 +51,32 @@ Scene create_scene() {
             Sphere{
                 Vec3 {0, -1, 3},
                 1,
-                Color{0, 0, 255, 255}
+                Color{0, 0, 255, 255},
+                500
             }
         );
         spheres.push_back(
             Sphere{
                 Vec3 {-2, 0, 4},
                 1,
-                Color{0, 255, 0, 255}
+                Color{0, 255, 0, 255},
+                500
             }
         );
         spheres.push_back(
             Sphere{
                 Vec3 {2, 0, 4},
                 1,
-                Color{0, 0, 255, 255}
+                Color{255, 0, 0, 255},
+                10
             }
         );
         spheres.push_back(
             Sphere{
                 Vec3 {0, -5001, 4},
                 5000,
-                Color{0, 255, 255, 0}
+                Color{0, 255, 255, 255},
+                1000
             }
         );
     // }
@@ -112,7 +117,7 @@ Vec3 screen_to_viewport(Vec2& point) {
     };
 }
 
-float compute_lighting(Vec3 point, Vec3 normal, Scene& scene) {
+float compute_lighting(Vec3 point, Vec3 normal, Vec3 view, int specular, Scene& scene) {
     float i = 0.0f;
     for (Light& light: scene.light_sources) {
         if (light.type == LightType::Ambient) {
@@ -127,6 +132,14 @@ float compute_lighting(Vec3 point, Vec3 normal, Scene& scene) {
             float n_dot_l = dot_product(normal, l);
             if (n_dot_l > 0) {
                 i += light.intensity * n_dot_l / (magnitude(normal) * magnitude(l));
+            }
+
+            if (specular != 1) {
+                Vec3 r = 2 * normal * n_dot_l - l; 
+                float r_dot_v = dot_product(r, view);
+                if (r_dot_v > 0) {
+                    i += light.intensity * std::pow(r_dot_v / (magnitude(r) * magnitude(view)), specular);
+                }
             }
         }
     }
@@ -174,7 +187,7 @@ Color trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& sc
     Vec3 normal_with_mag = (point - closest_sphere.pos);
     Vec3 normal = normal_with_mag / magnitude(normal_with_mag);
     
-    float light_intensity = compute_lighting(point, normal, scene);
+    float light_intensity = compute_lighting(point, normal, -direction, closest_sphere.specular, scene);
 
     return closest_sphere.color * light_intensity;
 }
