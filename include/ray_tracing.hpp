@@ -117,35 +117,6 @@ Vec3 screen_to_viewport(Vec2& point) {
     };
 }
 
-float compute_lighting(Vec3 point, Vec3 normal, Vec3 view, int specular, Scene& scene) {
-    float i = 0.0f;
-    for (Light& light: scene.light_sources) {
-        if (light.type == LightType::Ambient) {
-            i += light.intensity;
-        } else {
-            Vec3 l;
-            if (light.type == LightType::Point) {
-                l = light.position - point;
-            } else {
-                l = light.direction;
-            }
-            float n_dot_l = dot_product(normal, l);
-            if (n_dot_l > 0) {
-                i += light.intensity * n_dot_l / (magnitude(normal) * magnitude(l));
-            }
-
-            if (specular != 1) {
-                Vec3 r = 2 * normal * n_dot_l - l; 
-                float r_dot_v = dot_product(r, view);
-                if (r_dot_v > 0) {
-                    i += light.intensity * std::pow(r_dot_v / (magnitude(r) * magnitude(view)), specular);
-                }
-            }
-        }
-    }
-    return i;
-}
-
 std::pair<float, float> intersect_ray_sphere(Vec3 origin, Vec3 direction, Sphere sphere) {
     // Equation: t^2(d.d) + t(2(co.d)) + co.co - r2 = 0
     // Extracting a, b, and c with: (a * t^2) + (b * t) + c = 0
@@ -165,8 +136,8 @@ std::pair<float, float> intersect_ray_sphere(Vec3 origin, Vec3 direction, Sphere
     return {t1, t2};
 }
 
-Color trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& scene) {
-    float closest_t = std::numeric_limits<float>::infinity();
+std::pair<Sphere, float> closest_intersection(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& scene) {
+    float closest_t = max_t;
     Sphere closest_sphere = Sphere{};
     for (Sphere& sphere: scene.spheres) {
         std::pair<float, float> t = intersect_ray_sphere(origin, direction, sphere);
@@ -179,6 +150,50 @@ Color trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& sc
             closest_sphere = sphere;
         }
     }
+    return {closest_sphere, closest_t};
+}
+
+float compute_lighting(Vec3 point, Vec3 normal, Vec3 view, int specular, Scene& scene) {
+    float i = 0.0f;
+    for (Light& light: scene.light_sources) {
+        if (light.type == LightType::Ambient) {
+            i += light.intensity;
+        } else {
+            Vec3 l;
+            float max_t;
+            if (light.type == LightType::Point) {
+                l = light.position - point;
+                max_t = 1.0;
+            } else {
+                l = light.direction;
+                max_t = std::numeric_limits<float>::infinity();
+            }
+
+            auto [shadow_sphere, shadow_t] = closest_intersection(point, l, 0.001, max_t, scene);
+            if  (shadow_sphere.radius != 0.0) {
+                continue;
+            }
+
+            float n_dot_l = dot_product(normal, l);
+            if (n_dot_l > 0) {
+                i += light.intensity * n_dot_l / (magnitude(normal) * magnitude(l));
+            }
+
+            if (specular != 1) {
+                Vec3 r = 2 * normal * n_dot_l - l; 
+                float r_dot_v = dot_product(r, view);
+                if (r_dot_v > 0) {
+                    i += light.intensity * std::pow(r_dot_v / (magnitude(r) * magnitude(view)), specular);
+                }
+            }
+        }
+    }
+    return i;
+}
+
+Color trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& scene) {
+    auto [closest_sphere, closest_t] = closest_intersection(origin, direction, min_t, max_t, scene);
+
     if (closest_sphere.radius == 0.0) {
         return background_color;
     } 
