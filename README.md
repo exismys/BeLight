@@ -11,9 +11,13 @@ SDL2:
 
 ```sudo apt install libsdl2-dev```
 
-## Ray Tracing Scene
+## Ray Traced Scenes
 
+### Trace Ray recursion_depth = 1
 ![Ray Tracing Result](renders/rendered_ray_traced_scene.png)
+
+### Trace Ray recursion_depth = 3
+![Ray Tracing Result](renders/rendered_ray_traced_scene_rd3.png.png)
 
 ## Build
 ```
