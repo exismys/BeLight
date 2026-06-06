@@ -1,6 +1,8 @@
 
+#include <format>
 #include <iostream>
 #include <cstdint>
+#include <string>
 #include <vector>
 #include <chrono>
 
@@ -77,6 +79,9 @@ int main() {
 
     auto start_time = std::chrono::steady_clock::now();
     double accumulator = 0.0;
+    double frame_timer = 0.0;
+    int frame_count = 0;
+    float average_fps = 0;
     constexpr double dt = 1.0 / 60.0;
 
     bool running = true;
@@ -147,6 +152,14 @@ int main() {
         double frame_time = std::chrono::duration<double>(end_time - start_time).count();
         start_time = end_time;
 
+        frame_timer += frame_time;
+        frame_count += 1;
+        if (frame_timer >= 0.5) {
+            average_fps = frame_count / frame_timer;
+            frame_timer = 0.0f;
+            frame_count = 0;
+        }
+
         // Update simulation
         // Fixed timestep integration
         accumulator += frame_time;
@@ -162,7 +175,7 @@ int main() {
         // render_simulation(renderer, simulation);
         main_loop(renderer, scene);
 
-        text.draw_text(renderer, "FPS", IVec2{10, 20}, 24.0f, Color{255, 255, 255, 255});
+        text.draw_text(renderer, std::format("FPS: {:.2f}", average_fps), IVec2{10, 40}, 24.0f, Color{255, 255, 255, 255});
 
         if (export_frame) {
             save_framebuffer(renderer, "rendered.png");
