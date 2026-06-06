@@ -1,14 +1,17 @@
 
-#include <SDL_keycode.h>
 #include <iostream>
 #include <cstdint>
 #include <vector>
 #include <chrono>
+
 #include <SDL2/SDL.h>
+#include <SDL_keycode.h>
+
 #include "renderer.hpp"
 #include "mathematics.hpp"
 #include "simulation.hpp"
 #include "ray_tracing.hpp"
+#include "text.hpp"
 
 constexpr uint32_t WIDTH = 2400;
 constexpr uint32_t HEIGHT = 1200;
@@ -68,6 +71,9 @@ int main() {
 
     // Simulation simulation = create_simulation();
     Scene scene = create_scene();
+
+    // Load font
+    Text text("assets/fonts/UbuntuMono[wght].ttf");
 
     auto start_time = std::chrono::steady_clock::now();
     double accumulator = 0.0;
@@ -155,6 +161,8 @@ int main() {
         // Modify framebuffer
         // render_simulation(renderer, simulation);
         main_loop(renderer, scene);
+
+        text.draw_text(renderer, "FPS", IVec2{10, 20}, 24.0f, Color{255, 255, 255, 255});
 
         if (export_frame) {
             save_framebuffer(renderer, "rendered.png");

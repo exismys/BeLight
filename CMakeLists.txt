@@ -26,7 +26,8 @@ add_executable(
     src/renderer.cpp
     src/mathematics.cpp
     src/simulation.cpp
-    src/stb_image_write.cpp
+    src/stb_impl.cpp
+    src/text.cpp
 )
 
 # Link the required system libraries to the executable
