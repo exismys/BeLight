@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <stb_image_write.h>
 #include "renderer.hpp"
 #include "mathematics.hpp"
 
@@ -9,9 +10,6 @@ void render_simulation(Renderer& renderer, Simulation& simulation) {
         draw_circle_solid(renderer, particle.pos, particle.radius, particle.color);
     }
 }
-
-// Simulation Objects
-
 
 // Geometry
 void draw_circle_solid(Renderer& renderer, Vec2 pos, float radius, Color color) {
@@ -31,6 +29,11 @@ void draw_circle_solid(Renderer& renderer, Vec2 pos, float radius, Color color) 
             }
         }
     }
+}
+
+// Export framebuffer
+void save_framebuffer(Renderer& renderer, const char* filename) {
+    stbi_write_png(filename, renderer.width, renderer.height, 4, renderer.framebuffer.data(), renderer.width * sizeof(uint32_t));
 }
 
 // put_pixel primitive setup

@@ -3,18 +3,17 @@ Experiments on graphic programming.
 
 The actual goal is to make a minimal 3D software renderer for learning purposes.
 
+## Dependencies
 
-## Dependences
-
-This project requires SDL2 for windowing and other setups. Install following packages:
+This project requires SDL2 for windowing and framebuffer. Install following packages:
 
 SDL2:
 
 ```sudo apt install libsdl2-dev```
 
-SDL2_ttf:
+## Ray Tracing Scene
 
-```sudo apt install libsdl2-ttf-dev```
+![Ray Tracing Result](renders/rendered_ray_traced_scene.png)
 
 ## Build
 ```

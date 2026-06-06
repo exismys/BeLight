@@ -233,7 +233,7 @@ void main_loop(Renderer& renderer, Scene& scene) {
         for (int y = - screen_height / 2; y < screen_height / 2; y++) {
             Vec2 point = Vec2{static_cast<float>(x), static_cast<float>(y)};
             Vec3 direction = screen_to_viewport(point);
-            Color color = trace_ray(camera_position, direction, 1, std::numeric_limits<float>::infinity(), scene, 3);
+            Color color = trace_ray(camera_position, direction, 1, std::numeric_limits<float>::infinity(), scene, 1);
             draw_point(renderer, Vec2{float(x), float(y)}, color);
         }
     }

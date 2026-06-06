@@ -1,4 +1,5 @@
 
+#include <SDL_keycode.h>
 #include <iostream>
 #include <cstdint>
 #include <vector>
@@ -73,6 +74,7 @@ int main() {
     constexpr double dt = 1.0 / 60.0;
 
     bool running = true;
+    bool export_frame = false;
     SDL_Event event;
     while (running) {
         // Process events
@@ -116,6 +118,9 @@ int main() {
                 if (event.key.keysym.sym == SDLK_2) {
                     update_light_pos(scene, 0.1f);
                 }
+                if (event.key.keysym.sym == SDLK_e) {
+                    export_frame = true;
+                }
             }
 
             // Mouse events
@@ -151,6 +156,10 @@ int main() {
         // render_simulation(renderer, simulation);
         main_loop(renderer, scene);
 
+        if (export_frame) {
+            save_framebuffer(renderer, "rendered.png");
+            export_frame = false;
+        }
 
         SDL_UpdateTexture(
             texture,
