@@ -17,7 +17,7 @@ SDL2:
 ![Ray Tracing Result](renders/rendered_ray_traced_scene.png)
 
 ### Trace Ray recursion_depth = 3
-![Ray Tracing Result](renders/rendered_ray_traced_scene_rd3.png.png)
+![Ray Tracing Result](renders/rendered_ray_traced_scene_rd3.png)
 
 ## Build
 ```
