@@ -183,3 +183,10 @@ Vec2 operator*(const IVec2& a, float b) {
         a.y * b,
     };
 }
+
+Vec2 swap_components(const Vec2& a) {
+    return Vec2{
+        a.y,
+        a.x
+    };
+}

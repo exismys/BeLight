@@ -26,6 +26,8 @@ IVec2 operator+(const IVec2& a, const IVec2& b);
 IVec2 operator-(const IVec2& a, const IVec2& b);
 Vec2 operator*(const IVec2& a, float b);
 
+Vec2 swap_components(const Vec2& a);
+
 struct Vec3 {
     float x;
     float y;
