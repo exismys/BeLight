@@ -16,8 +16,8 @@
 #include "rasterizer.hpp"
 #include "text.hpp"
 
-constexpr uint32_t WIDTH = 800;
-constexpr uint32_t HEIGHT = 400;
+constexpr uint32_t WIDTH = 1200;
+constexpr uint32_t HEIGHT = 720;
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -184,9 +184,9 @@ int main() {
 
         // Modify framebuffer
         // render_simulation(renderer, simulation);
-        main_loop(renderer, scene);
+        // render_ray_traced_scene(renderer, scene);
         draw_line(renderer, {100, 100}, {500, 500}, Color{255, 255, 255, 255});
-
+        draw_triangle_wireframe(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 255, 255});
 
         // Render info
         text.draw_text(renderer, std::format("FPS: {:.2f}", average_fps), IVec2{10, 40}, 24.0f, Color{255, 255, 255, 255});

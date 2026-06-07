@@ -225,7 +225,7 @@ Color trace_ray(Vec3 origin, Vec3 direction, float min_t, float max_t, Scene& sc
 
 }
 
-void main_loop(Renderer& renderer, Scene& scene) {
+void render_ray_traced_scene(Renderer& renderer, Scene& scene) {
     screen_width = renderer.width;
     screen_height = renderer.height;
     for (int x = - screen_width / 2; x < screen_width / 2; x++) {

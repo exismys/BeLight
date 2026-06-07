@@ -1,5 +1,11 @@
 #include "rasterizer.hpp"
 
+void draw_triangle_wireframe(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color) {
+    draw_line(renderer, p1, p2, color);
+    draw_line(renderer, p2, p3, color);
+    draw_line(renderer, p3, p1, color);
+}
+
 std::vector<float> interpolate(Vec2 p1, Vec2 p2) {
     std::vector<float> values;
     if (std::round(p1.x) == std::round(p2.x)) {
@@ -29,8 +35,7 @@ void draw_line(Renderer& renderer, Vec2 p1, Vec2 p2, Color color) {
 
         std::vector<float> y_values = interpolate(p1, p2);
         for (int x = x1; x <= x2; x++) {
-            put_pixel(renderer, IVec2{x, static_cast<int>(std::round(y_values[x - x1]))}, color);
-
+            draw_point(renderer, Vec2{static_cast<float>(x), y_values[x - x1]}, color);
         }
     } else {
         if (p1.y > p2.y) {
@@ -44,7 +49,7 @@ void draw_line(Renderer& renderer, Vec2 p1, Vec2 p2, Color color) {
 
         std::vector<float> x_values = interpolate(Vec2{p1.y, p1.x}, Vec2{p2.y, p2.x});
         for (int y = y1; y <= y2; y++) {
-            put_pixel(renderer, IVec2{static_cast<int>(std::round(x_values[y - y1])), y}, color);
+            draw_point(renderer, Vec2{x_values[y - y1], static_cast<float>(y)}, color);
         }
     }
 }
