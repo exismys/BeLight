@@ -15,9 +15,8 @@ int screen_width = 600;
 int screen_height = 600;
 constexpr float viewport_size_x = 2;
 constexpr float viewport_size_y = 1;
-float viewport_x = 0;
 float projection_plane_z = 1;
-constexpr Vec3 camera_position = Vec3{0, 0, 0};
+Vec3 camera_position = Vec3{0, 0, 0};
 constexpr Color background_color = Color{0, 0, 0};
 
 enum class LightType {
@@ -117,7 +116,7 @@ Scene create_scene() {
 
 Vec3 screen_to_viewport(Vec2& point) {
     return Vec3{
-        point.x * viewport_size_x / screen_width + viewport_x,
+        point.x * viewport_size_x / screen_width,
         point.y * viewport_size_y / screen_height,
         projection_plane_z
     };
@@ -243,10 +242,10 @@ void update_projection_plane_z(float change) {
     projection_plane_z += change;
 }
 
-void update_viewport_x(float change) {
-    viewport_x += change;
-}
-
 void update_light_pos(Scene& scene, float change) {
     scene.light_sources[1].position.y += change;
+}
+
+void update_camera_pos(Vec3 change) {
+    camera_position += change;
 }

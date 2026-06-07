@@ -16,8 +16,8 @@
 #include "rasterizer.hpp"
 #include "text.hpp"
 
-constexpr uint32_t WIDTH = 2400;
-constexpr uint32_t HEIGHT = 1200;
+constexpr uint32_t WIDTH = 800;
+constexpr uint32_t HEIGHT = 400;
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -130,6 +130,18 @@ int main() {
                 if (event.key.keysym.sym == SDLK_2) {
                     update_light_pos(scene, 0.1f);
                 }
+                if (event.key.keysym.sym == SDLK_UP) {
+                    update_camera_pos(Vec3{0, 0, 0.1});
+                }
+                if (event.key.keysym.sym == SDLK_DOWN) {
+                    update_camera_pos(Vec3{0, 0, -0.1});
+                }
+                if (event.key.keysym.sym == SDLK_LEFT) {
+                    update_camera_pos(Vec3{-0.1, 0, 0});
+                }
+                if (event.key.keysym.sym == SDLK_RIGHT) {
+                    update_camera_pos(Vec3{0.1, 0, 0});
+                }
                 if (event.key.keysym.sym == SDLK_e) {
                     export_frame = true;
                 }
@@ -140,13 +152,11 @@ int main() {
                 update_projection_plane_z(event.wheel.y * 0.1f);
             }
 
-            if (event.type == SDL_MOUSEBUTTONDOWN) {
-                if (event.button.button == SDL_BUTTON_LEFT) {
-                    update_viewport_x(0.1);
-                } else if (event.button.button == SDL_BUTTON_RIGHT) {
-                    update_viewport_x(-0.1);
-                }
-            }
+            // if (event.type == SDL_MOUSEBUTTONDOWN) {
+            //     if (event.button.button == SDL_BUTTON_LEFT) {
+            //     } else if (event.button.button == SDL_BUTTON_RIGHT) {
+            //     }
+            // }
         }
 
         auto end_time = std::chrono::steady_clock::now();
@@ -174,7 +184,7 @@ int main() {
 
         // Modify framebuffer
         // render_simulation(renderer, simulation);
-        // main_loop(renderer, scene);
+        main_loop(renderer, scene);
         draw_line(renderer, {100, 100}, {500, 500}, Color{255, 255, 255, 255});
 
 
