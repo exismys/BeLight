@@ -5,6 +5,67 @@
 #include "mathematics.hpp"
 #include "renderer.hpp"
 
+void draw_triangle_shaded(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color, float h1, float h2, float h3) {
+    if (p1.y > p2.y) {
+        std::swap(p1, p2);
+        std::swap(h1, h2);
+    }
+    if (p1.y > p3.y) {
+        std::swap(p1, p3);
+        std::swap(h1, h3);
+    }
+    if (p2.y > p3.y) {
+        std::swap(p2, p3);
+        std::swap(h2, h3);
+    }
+
+    std::vector<float> x_values_p12 = interpolate(swap_components(p1), swap_components(p2));
+    std::vector<float> x_values_p23 = interpolate(swap_components(p2), swap_components(p3));
+    std::vector<float> x_values_p13 = interpolate(swap_components(p1), swap_components(p3));
+
+    std::vector<float> h12 = interpolate(Vec2{p1.y, h1}, Vec2{p2.y, h2});
+    std::vector<float> h23 = interpolate(Vec2{p2.y, h2}, Vec2{p3.y, h3});
+    std::vector<float> h13 = interpolate(Vec2{p1.y, h1}, Vec2{p3.y, h3});
+
+    x_values_p12.pop_back();
+    std::vector<float> x_values_p123 = x_values_p12;
+    x_values_p123.insert(x_values_p123.end(), x_values_p23.begin(), x_values_p23.end());
+
+    h12.pop_back();
+    std::vector<float> h123 = h12;
+    h123.insert(h123.end(), h23.begin(), h23.end());
+
+    int mid = x_values_p12.size() / 2;
+    std::vector<float> x_values_left, x_values_right;
+    std::vector<float> h_values_left, h_values_right;
+
+    if (x_values_p13[mid] < x_values_p123[mid]) {
+        x_values_left = x_values_p13;
+        h_values_left = h13;
+        x_values_right = x_values_p123;
+        h_values_right = h123;
+    } else {
+        x_values_left = x_values_p123;
+        h_values_left = h123;
+        x_values_right = x_values_p13;
+        h_values_right = h13;
+    }
+
+    for (int y = std::round(p1.y); y <= std::round(p3.y); y++) {
+        float x_left = x_values_left[y - p1.y];
+        float x_right = x_values_right[y - p1.y];
+        float h_left = h_values_left[y - p1.y];
+        float h_right = h_values_right[y - p1.y];
+
+        std::vector<float> h_values = interpolate(Vec2{x_left, h_left}, Vec2{x_right, h_right});
+
+        for (int x = std::round(x_left); x <= std::round(x_right); x++) {
+            Color shade = color * h_values[x - x_left];
+            draw_point(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, shade);
+        }
+    }
+}
+
 void draw_triangle_filled(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color) {
     if (p1.y > p2.y) std::swap(p1, p2);
     if (p1.y > p3.y) std::swap(p1, p3);

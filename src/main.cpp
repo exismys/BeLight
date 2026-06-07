@@ -186,7 +186,8 @@ int main() {
         // render_simulation(renderer, simulation);
         // render_ray_traced_scene(renderer, scene);
         draw_line(renderer, {100, 100}, {500, 500}, Color{255, 255, 255, 255});
-        draw_triangle_filled(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 0, 255});
+        // draw_triangle_filled(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 0, 255});
+        draw_triangle_shaded(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 0, 255}, 0.0, 0.0, 1.0);
         draw_triangle_wireframe(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 255, 255});
 
         // Render info
