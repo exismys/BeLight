@@ -20,7 +20,6 @@ void draw_circle(Renderer& renderer, Vec2 pos, float radius, Color color);
 void draw_circle_solid(Renderer& renderer, Vec2 pos, float radius, Color color);
 void draw_rect(Renderer& renderer, Vec2 pos, Vec2 size, Color color);
 void draw_rect_solid(Renderer& renderer, Vec2 pos, Vec2 size, Color color);
-void draw_line(Renderer& renderer, Vec2 pos1, Vec2 pos2, Color color);
 
 // Export framebuffer
 void save_framebuffer(Renderer& renderer, const char* filename);

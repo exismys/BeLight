@@ -28,6 +28,7 @@ add_executable(
     src/simulation.cpp
     src/stb_impl.cpp
     src/text.cpp
+    src/rasterizer.cpp
 )
 
 # Link the required system libraries to the executable

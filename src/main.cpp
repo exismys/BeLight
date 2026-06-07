@@ -12,7 +12,8 @@
 #include "renderer.hpp"
 #include "mathematics.hpp"
 #include "simulation.hpp"
-#include "ray_tracing.hpp"
+#include "ray_tracer.hpp"
+#include "rasterizer.hpp"
 #include "text.hpp"
 
 constexpr uint32_t WIDTH = 2400;
@@ -173,8 +174,11 @@ int main() {
 
         // Modify framebuffer
         // render_simulation(renderer, simulation);
-        main_loop(renderer, scene);
+        // main_loop(renderer, scene);
+        draw_line(renderer, {100, 100}, {500, 500}, Color{255, 255, 255, 255});
 
+
+        // Render info
         text.draw_text(renderer, std::format("FPS: {:.2f}", average_fps), IVec2{10, 40}, 24.0f, Color{255, 255, 255, 255});
 
         if (export_frame) {
