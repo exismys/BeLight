@@ -13,8 +13,8 @@
 // Simulation constants
 int screen_width = 600;
 int screen_height = 600;
-constexpr float viewport_size_x = 2;
-constexpr float viewport_size_y = 1;
+constexpr float viewport_size_x = 5;
+constexpr float viewport_size_y = 5;
 float projection_plane_z = 1;
 Vec3 camera_position = Vec3{0, 0, 0};
 constexpr Color background_color = Color{0, 0, 0};

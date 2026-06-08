@@ -4,6 +4,27 @@
 #include "rasterizer.hpp"
 #include "mathematics.hpp"
 #include "renderer.hpp"
+#include "types.hpp"
+
+const float viewport_size_x = 5;
+const float viewport_size_y = 5;
+const float viewport_z = 1;
+
+Vec2 viewport_to_canvas(Renderer& renderer, Vec3 point) {
+    return Vec2{
+        point.x * (renderer.width / viewport_size_x),
+        point.y * (renderer.height / viewport_size_y)
+    };
+}
+
+Vec2 project_vertex(Renderer& renderer, Vec3 vertex) {
+    return viewport_to_canvas(renderer, Vec3{
+        vertex.x * viewport_z / vertex.z, 
+        vertex.y * viewport_z / vertex.z,
+        vertex.z
+    });
+}
+
 
 void draw_triangle_shaded(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color, float h1, float h2, float h3) {
     if (p1.y > p2.y) {
@@ -148,4 +169,91 @@ void draw_line(Renderer& renderer, Vec2 p1, Vec2 p2, Color color) {
             draw_point(renderer, Vec2{x_values[y - y1], static_cast<float>(y)}, color);
         }
     }
+}
+
+void draw_cube(Renderer& renderer) {
+    Vec3 v_a_front{-1, 1, 1};
+    Vec3 v_b_front{1, 1, 1};
+    Vec3 v_c_front{1, -1, 1};
+    Vec3 v_d_front{-1, -1, 1};
+
+    Vec3 v_a_back{-1, 1, 3};
+    Vec3 v_b_back{1, 1, 3};
+    Vec3 v_c_back{1, -1, 3};
+    Vec3 v_d_back{-1, -1, 3};
+
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_a_front),
+        project_vertex(renderer, v_b_front),
+        Colors::Blue
+    );
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_b_front),
+        project_vertex(renderer, v_c_front),
+        Colors::Blue
+    );
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_c_front),
+        project_vertex(renderer, v_d_front),
+        Colors::Blue
+    );
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_d_front),
+        project_vertex(renderer, v_a_front),
+        Colors::Blue
+    );
+
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_a_back),
+        project_vertex(renderer, v_b_back),
+        Colors::Red
+    );
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_b_back),
+        project_vertex(renderer, v_c_back),
+        Colors::Red
+    );
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_c_back),
+        project_vertex(renderer, v_d_back),
+        Colors::Red
+    );
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_d_back),
+        project_vertex(renderer, v_a_back),
+        Colors::Red
+    );
+
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_a_front),
+        project_vertex(renderer, v_a_back),
+        Colors::Green
+    );
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_b_front),
+        project_vertex(renderer, v_b_back),
+        Colors::Green
+    );
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_c_front),
+        project_vertex(renderer, v_c_back),
+        Colors::Green
+    );
+    draw_line(
+        renderer, 
+        project_vertex(renderer, v_d_front),
+        project_vertex(renderer, v_d_back),
+        Colors::Green
+    );
 }
