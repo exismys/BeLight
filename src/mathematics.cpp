@@ -1,7 +1,172 @@
 #include <cmath>
 #include "mathematics.hpp"
 
-// Vector 3 operator overloads
+// Matrix operations
+
+Mat4 identity_matrix() {
+    Mat4 m{};
+
+    m.m[0][0] = 1;
+    m.m[1][1] = 1;
+    m.m[2][2] = 1;
+    m.m[3][3] = 1;
+
+    return m;
+}
+
+Mat4 translation_matrix(const Vec3& v) {
+    Mat4 m = identity_matrix();
+
+    m.m[0][3] = v.x;
+    m.m[1][3] = v.y;
+    m.m[2][3] = v.z;
+
+    return m;
+}
+
+Vec4 operator*(const Mat4& m, const Vec4& v) {
+    return Vec4 {
+        m.m[0][0] * v.x +
+        m.m[0][1] * v.y +
+        m.m[0][2] * v.z +
+        m.m[0][3] * v.w,
+
+        m.m[1][0] * v.x +
+        m.m[1][1] * v.y +
+        m.m[1][2] * v.z +
+        m.m[1][3] * v.w,
+
+        m.m[2][0] * v.x +
+        m.m[2][1] * v.y +
+        m.m[2][2] * v.z +
+        m.m[2][3] * v.w,
+
+        m.m[3][0] * v.x +
+        m.m[3][1] * v.y +
+        m.m[3][2] * v.z +
+        m.m[3][3] * v.w
+    };
+}
+
+Mat4 operator*(const Mat4& a, const Mat4& b) {
+    Mat4 result{};
+
+    for (int row = 0; row < 4; row++) {
+        for (int col = 0; col < 4; col++) {
+
+            float value = 0;
+
+            for (int k = 0; k < 4; k++) {
+                value += a.m[row][k] * b.m[k][col];
+            }
+
+            result.m[row][col] = value;
+        }
+    }
+
+    return result;
+}
+
+// Vec4 operations
+Vec4 operator+(const Vec4& a, const Vec4& b) {
+    return Vec4{
+        a.x + b.x,
+        a.y + b.y,
+        a.z + b.z,
+        a.w + b.w
+    };
+}
+
+Vec4& operator+=(Vec4& a, const Vec4& b) {
+    a.x += b.x;
+    a.y += b.y;
+    a.z += b.z;
+    a.w += b.w;
+    return a;
+}
+
+Vec4 operator-(const Vec4& a, const Vec4& b) {
+    return Vec4{
+        a.x - b.x,
+        a.y - b.y,
+        a.z - b.z,
+        a.w - b.w
+    };
+}
+
+Vec4 operator-(const Vec4& a) {
+    return Vec4{
+        -a.x,
+        -a.y,
+        -a.z,
+        -a.w
+    };
+}
+
+Vec4& operator-=(Vec4& a, const Vec4& b) {
+    a.x -= b.x;
+    a.y -= b.y;
+    a.z -= b.z;
+    a.w -= b.w;
+    return a;
+}
+
+Vec4 operator*(const Vec4& a, float b) {
+    return Vec4{
+        a.x * b,
+        a.y * b,
+        a.z * b,
+        a.w * b
+    };
+}
+
+Vec4 operator*(float a, const Vec4& b) {
+    return Vec4{
+        b.x * a,
+        b.y * a,
+        b.z * a,
+        b.w * a
+    };
+}
+
+Vec4& operator*=(Vec4& a, float b) {
+    a.x *= b;
+    a.y *= b;
+    a.z *= b;
+    a.w *= b;
+    return a;
+}
+
+Vec4 operator/(const Vec4& a, float b) {
+    return Vec4{
+        a.x / b,
+        a.y / b,
+        a.z / b,
+        a.w / b
+    };
+}
+
+Vec4& operator/=(Vec4& a, float b) {
+    a.x /= b;
+    a.y /= b;
+    a.z /= b;
+    a.w /= b;
+    return a;
+}
+
+float dot_product(const Vec4& a, const Vec4& b) {
+    return
+        a.x * b.x +
+        a.y * b.y +
+        a.z * b.z +
+        a.w * b.w;
+}
+
+float magnitude(const Vec4& a) {
+    return std::sqrt(dot_product(a, a));
+}
+
+// Vector 3 operations
 Vec3 operator+(const Vec3& a, const Vec3& b) {
     return Vec3{
         a.x + b.x,
@@ -110,7 +275,7 @@ float magnitude(const Vec3& a) {
     return std::sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 }
 
-// Vec2 operator overloads
+// Vec2 operations
 Vec2 operator+(const Vec2& a, const Vec2& b) {
     return Vec2{
         a.x + b.x,
