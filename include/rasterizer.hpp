@@ -8,6 +8,28 @@
 #include "renderer.hpp"
 #include "types.hpp"
 
+struct Triangle {
+    int v[3];
+    Color color;
+};
+
+struct Mesh {
+    std::vector<Vec3> vertices;
+    std::vector<Triangle> triangles;
+};
+
+struct Object {
+    Mesh* mesh;
+    
+    Vec3 position;
+    Vec3 rotation;
+    Vec3 scale = {1, 1, 1};
+};
+
+Mesh create_cube_mesh();
+void render_object(Renderer& renderer, Object& object);
+void render_triangle(Renderer& renderer, const Triangle& triangle, const std::vector<Vec2>& projected_vertices);
+
 std::vector<float> interpolate(Vec2 p1, Vec2 p2);
 
 void draw_line(Renderer& renderer, Vec2 p1, Vec2 p2, Color color);

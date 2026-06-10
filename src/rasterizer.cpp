@@ -10,6 +10,72 @@ const float viewport_size_x = 5;
 const float viewport_size_y = 5;
 const float viewport_z = 1;
 
+Mesh create_cube_mesh() {
+    std::vector<Vec3> vertices = {
+        {-1, -1, -1},
+        { 1, -1, -1},
+        { 1,  1, -1},
+        {-1,  1, -1},
+
+        {-1, -1,  1},
+        { 1, -1,  1},
+        { 1,  1,  1},
+        {-1,  1,  1} 
+    };
+
+    std::vector<Triangle> triangles = {
+        // Negative Z face
+        {{0, 2, 1}, Colors::Blue},
+        {{0, 3, 2}, Colors::Blue},
+
+        // Positive Z face
+        {{4, 5, 6}, Colors::Red},
+        {{4, 6, 7}, Colors::Red},
+                   
+        // Negative X face (left)
+        {{0, 7, 3}, Colors::Green},
+        {{0, 4, 7}, Colors::Green},
+                   
+        // Positive X face (right)
+        {{1, 2, 6}, Colors::Cyan},
+        {{1, 6, 5}, Colors::Cyan},
+                   
+        // Positive Y face (top)
+        {{3, 7, 6}, Colors::Magenta},
+        {{3, 6, 2}, Colors::Magenta},
+                   
+        // Negative Y face (bottom)
+        {{0, 1, 5}, Colors::Orange},
+        {{0, 5, 4}, Colors::Orange}
+    };
+
+    return Mesh {
+        vertices,
+        triangles
+    };
+};
+
+void render_object(Renderer& renderer, Object& object) {
+    std::vector<Vec2> projected_vertices;
+    for (Vec3& v: object.mesh->vertices) {
+        Vec3 world_vertex = v + object.position;
+        projected_vertices.push_back(project_vertex(renderer, world_vertex));
+    }
+    for (Triangle& t: object.mesh->triangles) {
+        render_triangle(renderer, t, projected_vertices);
+    }
+}
+
+void render_triangle(Renderer& renderer, const Triangle& triangle, const std::vector<Vec2>& projected_vertices) {
+    draw_triangle_wireframe(
+        renderer,
+        projected_vertices[triangle.v[0]],
+        projected_vertices[triangle.v[1]],
+        projected_vertices[triangle.v[2]],
+        triangle.color
+    );
+}
+
 Vec2 viewport_to_canvas(Renderer& renderer, Vec3 point) {
     return Vec2{
         point.x * (renderer.width / viewport_size_x),
