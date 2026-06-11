@@ -92,12 +92,18 @@ Scene_Rast create_scene_rast() {
 }
 
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
+
+    Mat4 view = translation_matrix(-scene.camera.position) *
+                rotation_z_matrix(-scene.camera.rotation.z) *
+                rotation_y_matrix(-scene.camera.rotation.y) *
+                rotation_x_matrix(-scene.camera.rotation.x);
+
     for (Object& object: scene.objects) {
-        render_object(renderer, object);
+        render_object(renderer, object, view);
     }
 }
 
-void render_object(Renderer& renderer, Object& object) {
+void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
     Mat4 model = translation_matrix(object.position) *
                  rotation_z_matrix(get_runtime_seconds()) *
@@ -105,12 +111,14 @@ void render_object(Renderer& renderer, Object& object) {
                  rotation_x_matrix(object.rotation.x) *
                  scale_matrix(object.scale);
 
+    Mat4 view_model = view * model;
+
     std::vector<Vec2> projected_vertices;
 
     for (const Vec3& v: object.mesh->vertices) {
 
         Vec4 local{v.x, v.y, v.z, 1};
-        Vec4 world = model * local;
+        Vec4 world = view_model * local;
 
         projected_vertices.push_back(project_vertex(renderer, {world.x, world.y, world.z}));
     }

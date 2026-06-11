@@ -19,6 +19,11 @@ struct Mesh {
     std::vector<Triangle> triangles;
 };
 
+struct Camera {
+    Vec3 position;
+    Vec3 rotation;
+};
+
 struct Object {
     const Mesh* mesh;
     
@@ -30,12 +35,13 @@ struct Object {
 struct Scene_Rast {
     std::vector<std::unique_ptr<Mesh>> meshes;
     std::vector<Object> objects;
+    Camera camera;
 };
 
 Scene_Rast create_scene_rast();
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene);
 Mesh create_cube_mesh();
-void render_object(Renderer& renderer, Object& object);
+void render_object(Renderer& renderer, Object& object, Mat4& view);
 void render_triangle(Renderer& renderer, const Triangle& triangle, const std::vector<Vec2>& projected_vertices);
 
 std::vector<float> interpolate(Vec2 p1, Vec2 p2);

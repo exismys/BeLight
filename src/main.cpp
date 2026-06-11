@@ -90,7 +90,10 @@ int main() {
 
     bool running = true;
     bool export_frame = false;
+
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     SDL_Event event;
+
     while (running) {
         // Process events
         while (SDL_PollEvent(&event)) {
@@ -160,6 +163,22 @@ int main() {
             //     } else if (event.button.button == SDL_BUTTON_RIGHT) {
             //     }
             // }
+
+            if (event.type == SDL_MOUSEMOTION) {
+                const float sensitivity = 0.002f;
+
+                std::cout << "x change: " << event.motion.xrel << '\n';
+                std::cout << "y change: " << event.motion.yrel << '\n';
+
+                scene_rast.camera.rotation.y -= event.motion.xrel * sensitivity;
+                scene_rast.camera.rotation.x -= event.motion.yrel * sensitivity;
+
+                scene_rast.camera.rotation.x = std::clamp(
+                    scene_rast.camera.rotation.x,
+                    -1.5f,
+                    1.5f
+                );
+            }
         }
 
         auto end_time = std::chrono::steady_clock::now();
