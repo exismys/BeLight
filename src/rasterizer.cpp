@@ -1,8 +1,8 @@
 #include <cmath>
-#include <iostream>
-#include <numbers>
+#include <memory>
 #include <utility>
 #include <vector>
+#include <chrono>
 
 #include "rasterizer.hpp"
 #include "mathematics.hpp"
@@ -12,6 +12,16 @@
 const float viewport_size_x = 5;
 const float viewport_size_y = 5;
 const float viewport_z = 1;
+
+auto start_time = std::chrono::steady_clock::now();
+
+float get_runtime_seconds() {
+    auto now = std::chrono::steady_clock::now();
+
+    return std::chrono::duration<float>(
+        now - start_time
+    ).count();
+}
 
 Mesh create_cube_mesh() {
     std::vector<Vec3> vertices = {
@@ -58,15 +68,54 @@ Mesh create_cube_mesh() {
     };
 };
 
-void render_object(Renderer& renderer, Object& object) {
-    std::vector<Vec2> projected_vertices;
-    for (Vec3& v: object.mesh->vertices) {
-        Vec3 world_vertex = scale(v, object.scale);
-        world_vertex = rotate_around_z(world_vertex, object.rotation.z);
-        world_vertex = world_vertex + object.position;
-        projected_vertices.push_back(project_vertex(renderer, world_vertex));
+Scene_Rast create_scene_rast() {
+    Scene_Rast scene;
+
+    scene.meshes.push_back(std::make_unique<Mesh>(create_cube_mesh()));
+    Mesh* cube_mesh = scene.meshes[0].get();
+
+    scene.objects.push_back({
+        cube_mesh,
+        Vec3{5,5, 5},
+        Vec3{0, 0, 0},
+        Vec3{0, 0, 10}
+    });
+
+    scene.objects.push_back({
+        cube_mesh,
+        Vec3{1,1, 1},
+        Vec3{0, 0, 0},
+        Vec3{15, 15, 10}
+    });
+
+    return scene;
+}
+
+void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
+    for (Object& object: scene.objects) {
+        render_object(renderer, object);
     }
-    for (Triangle& t: object.mesh->triangles) {
+}
+
+void render_object(Renderer& renderer, Object& object) {
+
+    Mat4 model = translation_matrix(object.position) *
+                 rotation_z_matrix(get_runtime_seconds()) *
+                 rotation_y_matrix(object.rotation.y) *
+                 rotation_x_matrix(object.rotation.x) *
+                 scale_matrix(object.scale);
+
+    std::vector<Vec2> projected_vertices;
+
+    for (const Vec3& v: object.mesh->vertices) {
+
+        Vec4 local{v.x, v.y, v.z, 1};
+        Vec4 world = model * local;
+
+        projected_vertices.push_back(project_vertex(renderer, {world.x, world.y, world.z}));
+    }
+
+    for (const Triangle& t: object.mesh->triangles) {
         render_triangle(renderer, t, projected_vertices);
     }
 }

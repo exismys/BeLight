@@ -98,6 +98,10 @@ struct Mat4 {
 
 Mat4 identity_matrix();
 Mat4 translation_matrix(const Vec3& v);
+Mat4 rotation_x_matrix(float angle);
+Mat4 rotation_y_matrix(float angle);
+Mat4 rotation_z_matrix(float angle);
+Mat4 scale_matrix(const Vec3& v);
 
 Vec4 operator*(const Mat4& m, const Vec4& v);
 Mat4 operator*(const Mat4& a, const Mat4& b);

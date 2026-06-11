@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <memory>
 #include <vector>
 #include <cmath>
 
@@ -19,13 +20,20 @@ struct Mesh {
 };
 
 struct Object {
-    Mesh* mesh;
+    const Mesh* mesh;
     
     Vec3 scale = {1, 1, 1};
     Vec3 rotation;
     Vec3 position;
 };
 
+struct Scene_Rast {
+    std::vector<std::unique_ptr<Mesh>> meshes;
+    std::vector<Object> objects;
+};
+
+Scene_Rast create_scene_rast();
+void render_scene_rast(Renderer& renderer, Scene_Rast& scene);
 Mesh create_cube_mesh();
 void render_object(Renderer& renderer, Object& object);
 void render_triangle(Renderer& renderer, const Triangle& triangle, const std::vector<Vec2>& projected_vertices);

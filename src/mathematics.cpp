@@ -24,6 +24,58 @@ Mat4 translation_matrix(const Vec3& v) {
     return m;
 }
 
+Mat4 rotation_x_matrix(float angle) {
+    Mat4 m = identity_matrix();
+
+    float cos_angle = std::cos(angle);
+    float sin_angle = std::sin(angle);
+
+    m.m[1][1] = cos_angle;
+    m.m[1][2] = - sin_angle;
+    m.m[2][1] = sin_angle;
+    m.m[2][2] = cos_angle;
+
+    return m;
+}
+
+Mat4 rotation_y_matrix(float angle) {
+    Mat4 m = identity_matrix();
+
+    float cos_angle = std::cos(angle);
+    float sin_angle = std::sin(angle);
+
+    m.m[0][0] = cos_angle;
+    m.m[0][2] = - sin_angle;
+    m.m[2][0] = sin_angle;
+    m.m[2][2] = cos_angle;
+
+    return m;
+}
+
+Mat4 rotation_z_matrix(float angle) {
+    Mat4 m = identity_matrix();
+
+    float cos_angle = std::cos(angle);
+    float sin_angle = std::sin(angle);
+
+    m.m[0][0] = cos_angle;
+    m.m[0][1] = - sin_angle;
+    m.m[1][0] = sin_angle;
+    m.m[1][1] = cos_angle;
+
+    return m;
+}
+
+Mat4 scale_matrix(const Vec3& v) {
+    Mat4 m = identity_matrix();
+
+    m.m[0][0] = v.x;
+    m.m[1][1] = v.y;
+    m.m[2][2] = v.z;
+
+    return m;
+}
+
 Vec4 operator*(const Mat4& m, const Vec4& v) {
     return Vec4 {
         m.m[0][0] * v.x +

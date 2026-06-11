@@ -75,13 +75,8 @@ int main() {
 
     // Simulation simulation = create_simulation();
     Scene scene = create_scene(); // ray traced scene
-    Mesh cube_mesh = create_cube_mesh();
-    Object cube_object = {
-        &cube_mesh,
-        Vec3{5,5, 5},
-        Vec3{0, 0, 0.1},
-        Vec3{0, 0, 10}
-    };
+    Scene_Rast scene_rast = create_scene_rast();
+    
 
     // Load font
     Text text("assets/fonts/UbuntuMono[wght].ttf");
@@ -186,8 +181,6 @@ int main() {
             // update_simulation(simulation, dt);
             accumulator -= dt;
         }
-        cube_object.rotation.z += 0.01;
-
 
         // Clear framebuffer
         std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
@@ -200,7 +193,7 @@ int main() {
         // draw_triangle_shaded(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 0, 255}, 0.0, 0.0, 1.0);
         // draw_triangle_wireframe(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 255, 255});
         // draw_cube(renderer);
-        render_object(renderer, cube_object);
+        render_scene_rast(renderer, scene_rast);
         // Render info
         text.draw_text(renderer, std::format("FPS: {:.2f}", average_fps), IVec2{10, 40}, 24.0f, Color{255, 255, 255, 255});
 
