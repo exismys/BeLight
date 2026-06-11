@@ -2,6 +2,7 @@
 #include <format>
 #include <iostream>
 #include <cstdint>
+#include <numbers>
 #include <string>
 #include <vector>
 #include <chrono>
@@ -77,7 +78,9 @@ int main() {
     Mesh cube_mesh = create_cube_mesh();
     Object cube_object = {
         &cube_mesh,
-        Vec3{0, 0, 3}
+        Vec3{5,5, 5},
+        Vec3{0, 0, 0.1},
+        Vec3{0, 0, 10}
     };
 
     // Load font
@@ -183,6 +186,8 @@ int main() {
             // update_simulation(simulation, dt);
             accumulator -= dt;
         }
+        cube_object.rotation.z += 0.01;
+
 
         // Clear framebuffer
         std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);

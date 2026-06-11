@@ -21,9 +21,9 @@ struct Mesh {
 struct Object {
     Mesh* mesh;
     
-    Vec3 position;
-    Vec3 rotation;
     Vec3 scale = {1, 1, 1};
+    Vec3 rotation;
+    Vec3 position;
 };
 
 Mesh create_cube_mesh();

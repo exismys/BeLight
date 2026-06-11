@@ -60,6 +60,7 @@ float magnitude(const Vec3& a);
 Vec3 rotate_around_x(const Vec3& v, float angle);
 Vec3 rotate_around_y(const Vec3& v, float angle);
 Vec3 rotate_around_z(const Vec3& v, float angle);
+Vec3 scale(const Vec3& v, const Vec3& scale);
 
 IVec3 operator+(const IVec3& a, const IVec3& b);
 IVec3 operator-(const IVec3& a, const IVec3& b);

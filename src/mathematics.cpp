@@ -308,6 +308,14 @@ Vec3 rotate_around_z(const Vec3& v, float angle) {
     };
 }
 
+Vec3 scale(const Vec3& v, const Vec3& scale) {
+    return Vec3{
+        v.x * scale.x,
+        v.y * scale.y,
+        v.z * scale.z
+    };
+}
+
 
 // Vec2 operations
 Vec2 operator+(const Vec2& a, const Vec2& b) {
