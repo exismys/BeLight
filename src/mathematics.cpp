@@ -275,6 +275,40 @@ float magnitude(const Vec3& a) {
     return std::sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 }
 
+Vec3 rotate_around_x(const Vec3& v, float angle) {
+    float cos_angle = std::cos(angle);
+    float sin_angle = std::sin(angle);
+
+    return Vec3{
+        v.x,
+        v.y * cos_angle - v.z * sin_angle,
+        v.y * sin_angle + v.z * cos_angle,
+    };
+}
+
+Vec3 rotate_around_y(const Vec3& v, float angle) {
+    float cos_angle = std::cos(angle);
+    float sin_angle = std::sin(angle);
+
+    return Vec3{
+        v.x * cos_angle - v.z * sin_angle,
+        v.y,
+        v.x * sin_angle + v.z * cos_angle
+    };
+}
+
+Vec3 rotate_around_z(const Vec3& v, float angle) {
+    float cos_angle = std::cos(angle);
+    float sin_angle = std::sin(angle);
+
+    return Vec3{
+        v.x * cos_angle - v.y * sin_angle,
+        v.x * sin_angle + v.y * cos_angle,
+        v.z
+    };
+}
+
+
 // Vec2 operations
 Vec2 operator+(const Vec2& a, const Vec2& b) {
     return Vec2{

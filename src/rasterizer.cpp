@@ -1,3 +1,5 @@
+#include <cmath>
+#include <numbers>
 #include <utility>
 #include <vector>
 
@@ -59,6 +61,7 @@ void render_object(Renderer& renderer, Object& object) {
     std::vector<Vec2> projected_vertices;
     for (Vec3& v: object.mesh->vertices) {
         Vec3 world_vertex = v + object.position;
+        world_vertex = rotate_around_z(world_vertex, std::numbers::pi / 4);
         projected_vertices.push_back(project_vertex(renderer, world_vertex));
     }
     for (Triangle& t: object.mesh->triangles) {

@@ -57,6 +57,9 @@ Vec3& operator/=(Vec3& a, float b);
 
 float dot_product(const Vec3& a, const Vec3& b);
 float magnitude(const Vec3& a);
+Vec3 rotate_around_x(const Vec3& v, float angle);
+Vec3 rotate_around_y(const Vec3& v, float angle);
+Vec3 rotate_around_z(const Vec3& v, float angle);
 
 IVec3 operator+(const IVec3& a, const IVec3& b);
 IVec3 operator-(const IVec3& a, const IVec3& b);

@@ -77,7 +77,7 @@ int main() {
     Mesh cube_mesh = create_cube_mesh();
     Object cube_object = {
         &cube_mesh,
-        Vec3{0, 0, 2}
+        Vec3{0, 0, 3}
     };
 
     // Load font
