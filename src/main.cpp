@@ -1,5 +1,6 @@
 
 #include <SDL_keyboard.h>
+#include <SDL_scancode.h>
 #include <SDL_stdinc.h>
 #include <cmath>
 #include <format>
@@ -200,8 +201,7 @@ int main() {
             }
         }
 
-        // -------------------------------------------------------------
-        // Handle Camera movement
+        // Camera movement
         // -------------------------------------------------------------
         const Uint8* keyboard = SDL_GetKeyboardState(nullptr);
 
@@ -214,6 +214,8 @@ int main() {
             std::cos(pitch) * std::cos(yaw)
         };
 
+        Vec3 right = normalize(cross_product(Vec3{0, 1, 0}, forward));
+
         Vec3 movement{};
         float speed = 5.0f;
 
@@ -221,6 +223,13 @@ int main() {
             movement += forward;
         if (keyboard[SDL_SCANCODE_S])
             movement -= forward;
+        if (keyboard[SDL_SCANCODE_D])
+            movement += right;
+        if (keyboard[SDL_SCANCODE_A])
+            movement -= right;
+
+        if (magnitude(movement) > 0)
+            movement = normalize(movement);
 
         scene_rast.camera.position += movement * speed * dt;
         // -------------------------------------------------------------

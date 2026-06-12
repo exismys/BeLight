@@ -2,7 +2,7 @@
 #include "mathematics.hpp"
 
 // Matrix operations
-
+// ------------------------------------------------
 Mat4 identity_matrix() {
     Mat4 m{};
 
@@ -118,8 +118,10 @@ Mat4 operator*(const Mat4& a, const Mat4& b) {
 
     return result;
 }
+// ------------------------------------------------
 
 // Vec4 operations
+// ------------------------------------------------
 Vec4 operator+(const Vec4& a, const Vec4& b) {
     return Vec4{
         a.x + b.x,
@@ -217,8 +219,10 @@ float dot_product(const Vec4& a, const Vec4& b) {
 float magnitude(const Vec4& a) {
     return std::sqrt(dot_product(a, a));
 }
+// ------------------------------------------------
 
 // Vector 3 operations
+// ------------------------------------------------
 Vec3 operator+(const Vec3& a, const Vec3& b) {
     return Vec3{
         a.x + b.x,
@@ -323,6 +327,24 @@ float dot_product(const Vec3& a, const Vec3& b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+Vec3 cross_product(const Vec3& a, const Vec3& b) {
+    return Vec3{
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x
+    };
+}
+
+Vec3 normalize(const Vec3& a) {
+    float mag = magnitude(a);
+
+    if (mag == 0.0f) {
+        return Vec3{};
+    }
+
+    return a / mag;
+}
+
 float magnitude(const Vec3& a) {
     return std::sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 }
@@ -367,9 +389,10 @@ Vec3 scale(const Vec3& v, const Vec3& scale) {
         v.z * scale.z
     };
 }
-
+// -----------------------------------------------
 
 // Vec2 operations
+// -----------------------------------------------
 Vec2 operator+(const Vec2& a, const Vec2& b) {
     return Vec2{
         a.x + b.x,
@@ -449,3 +472,4 @@ Vec2 swap_components(const Vec2& a) {
         a.x
     };
 }
+// -----------------------------------------------
