@@ -1,4 +1,7 @@
 
+#include <SDL_keyboard.h>
+#include <SDL_stdinc.h>
+#include <cmath>
 #include <format>
 #include <iostream>
 #include <cstdint>
@@ -196,6 +199,31 @@ int main() {
                 );
             }
         }
+
+        // -------------------------------------------------------------
+        // Handle Camera movement
+        // -------------------------------------------------------------
+        const Uint8* keyboard = SDL_GetKeyboardState(nullptr);
+
+        float pitch = scene_rast.camera.rotation.x;
+        float yaw = scene_rast.camera.rotation.y;
+
+        Vec3 forward = {
+            - std::cos(pitch) * std::sin(yaw),
+            std::sin(pitch),
+            std::cos(pitch) * std::cos(yaw)
+        };
+
+        Vec3 movement{};
+        float speed = 5.0f;
+
+        if (keyboard[SDL_SCANCODE_W])
+            movement += forward;
+        if (keyboard[SDL_SCANCODE_S])
+            movement -= forward;
+
+        scene_rast.camera.position += movement * speed * dt;
+        // -------------------------------------------------------------
 
         auto end_time = std::chrono::steady_clock::now();
         double frame_time = std::chrono::duration<double>(end_time - start_time).count();
