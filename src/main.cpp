@@ -165,13 +165,29 @@ int main() {
             // }
 
             if (event.type == SDL_MOUSEMOTION) {
+
                 const float sensitivity = 0.002f;
 
-                std::cout << "x change: " << event.motion.xrel << '\n';
-                std::cout << "y change: " << event.motion.yrel << '\n';
+                // ------------------------------------------------------------------
+                // event.motion.xrel = +ve when the mouse moves right.
 
-                scene_rast.camera.rotation.y -= event.motion.xrel * sensitivity;
-                scene_rast.camera.rotation.x -= event.motion.yrel * sensitivity;
+                // Coordinate system convention: +ve yaw = anti-clockwise rotation
+                // about y-axis (camera turns left).
+
+                // We need camera to turn right for +ve yaw.
+                // So, we make the event.motion.xrel -ve.
+                // ------------------------------------------------------------------
+                scene_rast.camera.rotation.y += -event.motion.xrel * sensitivity;
+
+                // ------------------------------------------------------------------
+                // event.motion.xrel = +ve when the mouse moves down.
+
+                // Coordinate system convention: +ve pitch = anti-clockwise rotation
+                // about x-axis (camera turns down).
+
+                // We need this behavior to remain same.
+                // ------------------------------------------------------------------
+                scene_rast.camera.rotation.x += event.motion.yrel * sensitivity;
 
                 scene_rast.camera.rotation.x = std::clamp(
                     scene_rast.camera.rotation.x,
