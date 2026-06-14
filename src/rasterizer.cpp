@@ -88,6 +88,13 @@ Scene_Rast create_scene_rast() {
         Vec3{15, 15, 10}
     });
 
+    scene.objects.push_back({
+        cube_mesh,
+        Vec3{2,2, 2},
+        Vec3{0, 0, 0},
+        Vec3{-15, -15, 10}
+    });
+
     return scene;
 }
 
@@ -106,7 +113,7 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
 void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
     Mat4 model = translation_matrix(object.position) *
-                 rotation_z_matrix(get_runtime_seconds()) *
+                 rotation_z_matrix(object.rotation.z) *
                  rotation_y_matrix(object.rotation.y) *
                  rotation_x_matrix(object.rotation.x) *
                  scale_matrix(object.scale);
@@ -114,6 +121,7 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
     Mat4 view_model = view * model;
 
     std::vector<Vec2> projected_vertices;
+    std::vector<Vec4> transformed_vertices;
 
     for (const Vec3& v: object.mesh->vertices) {
 
@@ -121,9 +129,17 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
         Vec4 world = view_model * local;
 
         projected_vertices.push_back(project_vertex(renderer, {world.x, world.y, world.z}));
+        transformed_vertices.push_back(world);
     }
 
     for (const Triangle& t: object.mesh->triangles) {
+        if (
+            transformed_vertices[t.v[0]].z < 1 || 
+            transformed_vertices[t.v[1]].z < 1 || 
+            transformed_vertices[t.v[2]].z < 1
+        ) {
+            continue;
+        }
         render_triangle(renderer, t, projected_vertices);
     }
 }
