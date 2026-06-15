@@ -9,7 +9,7 @@
 #include "renderer.hpp"
 #include "types.hpp"
 
-const float viewport_size_x = 5;
+const float viewport_size_x = 10;
 const float viewport_size_y = 5;
 const float viewport_z = 1;
 
@@ -100,10 +100,10 @@ Scene_Rast create_scene_rast() {
 
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
 
-    Mat4 view = translation_matrix(-scene.camera.position) *
-                rotation_z_matrix(-scene.camera.rotation.z) *
+    Mat4 view = rotation_x_matrix(-scene.camera.rotation.x) *
                 rotation_y_matrix(-scene.camera.rotation.y) *
-                rotation_x_matrix(-scene.camera.rotation.x);
+                rotation_z_matrix(-scene.camera.rotation.z) *
+                translation_matrix(-scene.camera.position); 
 
     for (Object& object: scene.objects) {
         render_object(renderer, object, view);

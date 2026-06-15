@@ -31,8 +31,8 @@ Mat4 rotation_x_matrix(float angle) {
     float sin_angle = std::sin(angle);
 
     m.m[1][1] = cos_angle;
-    m.m[1][2] = - sin_angle;
-    m.m[2][1] = sin_angle;
+    m.m[1][2] = sin_angle;
+    m.m[2][1] = - sin_angle;
     m.m[2][2] = cos_angle;
 
     return m;
@@ -59,8 +59,8 @@ Mat4 rotation_z_matrix(float angle) {
     float sin_angle = std::sin(angle);
 
     m.m[0][0] = cos_angle;
-    m.m[0][1] = - sin_angle;
-    m.m[1][0] = sin_angle;
+    m.m[0][1] = sin_angle;
+    m.m[1][0] = - sin_angle;
     m.m[1][1] = cos_angle;
 
     return m;
