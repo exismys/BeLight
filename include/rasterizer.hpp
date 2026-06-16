@@ -9,6 +9,11 @@
 #include "renderer.hpp"
 #include "types.hpp"
 
+enum struct ObjectMode {
+    WIREFRAME,
+    FILLED
+};
+
 struct Triangle {
     int v[3];
     Color color;
@@ -36,6 +41,8 @@ struct Scene_Rast {
     std::vector<std::unique_ptr<Mesh>> meshes;
     std::vector<Object> objects;
     Camera camera;
+
+    ObjectMode object_mode;
 };
 
 Scene_Rast create_scene_rast();

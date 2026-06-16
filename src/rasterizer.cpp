@@ -9,9 +9,11 @@
 #include "renderer.hpp"
 #include "types.hpp"
 
-const float viewport_size_x = 10;
-const float viewport_size_y = 5;
+const float viewport_size_x = 3;
+const float viewport_size_y = 2;
 const float viewport_z = 1;
+
+ObjectMode object_mode = ObjectMode::FILLED;
 
 auto start_time = std::chrono::steady_clock::now();
 
@@ -95,6 +97,8 @@ Scene_Rast create_scene_rast() {
         Vec3{-15, -15, 10}
     });
 
+    scene.object_mode = ObjectMode::FILLED;
+
     return scene;
 }
 
@@ -145,6 +149,16 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
 }
 
 void render_triangle(Renderer& renderer, const Triangle& triangle, const std::vector<Vec2>& projected_vertices) {
+    if (object_mode == ObjectMode::FILLED) {
+        draw_triangle_filled(
+            renderer,
+            projected_vertices[triangle.v[0]],
+            projected_vertices[triangle.v[1]],
+            projected_vertices[triangle.v[2]],
+            triangle.color
+        );
+        return;
+    }
     draw_triangle_wireframe(
         renderer,
         projected_vertices[triangle.v[0]],
