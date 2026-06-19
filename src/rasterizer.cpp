@@ -209,10 +209,29 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
 }
 
 std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> planes) {
-    std::vector<Triangle3D> clipped;
+    std::vector<Triangle3D> triangles = { triangle };
+
     for (Plane& plane: planes) {
+
+        std::vector<Triangle3D> new_triagles;
+
+        for (Triangle3D& t: triangles) {
+            std::vector<Triangle3D> clipped = clip_triangle_against_plane(t, plane);
+            new_triagles.insert(
+                new_triagles.end(),
+                clipped.begin(),
+                clipped.end()
+            );
+        }
+
+        triangles = std::move(new_triagles);
+
+        if (triangles.empty()) {
+            break;
+        }
     }
-    return clipped;
+
+    return triangles;
 }
 
 std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane& plane) {
@@ -221,8 +240,39 @@ std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane&
     float d2 = signed_distance(triangle.p2, plane);
 
     if (d0 > 0 && d1 > 0 && d2 > 0) {
+        return {triangle};
     }
 
+    if (d0 < 0 && d1 < 0 && d2 <0) {
+        return {};
+    }
+
+    // Case: only one inside
+
+    if (d0 > 0 && d1 < 0 && d2 < 0) {
+
+
+    }
+
+    if (d0 < 0 && d1 > 0 && d2 < 0) {
+
+    }
+
+    if (d0 < 0 && d1 < 0 && d2 > 0) {
+
+    }
+
+    // Case : two inside
+
+    if (d0 > 0 && d1 > 0 && d2 < 0) {
+
+    }
+
+    if (d0 > 0 && d1 < 0 && d2 > 0) {
+    }
+
+    if (d0 < 0 && d1 > 0 && d2 > 0) {
+    }
 }
 
 float signed_distance(Vec3 vertex, Plane& plane) {
