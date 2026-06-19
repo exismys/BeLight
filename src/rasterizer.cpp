@@ -1,17 +1,29 @@
 #include <cmath>
 #include <memory>
+#include <span>
 #include <utility>
 #include <vector>
 #include <chrono>
+#include <iostream>
 
 #include "rasterizer.hpp"
 #include "mathematics.hpp"
 #include "renderer.hpp"
 #include "types.hpp"
 
-const float viewport_size_x = 3;
-const float viewport_size_y = 2;
+const float viewport_size_x = 1;
+const float viewport_size_y = 1;
 const float viewport_z = 1;
+
+const float one_by_sqrt_two = 1 / std::sqrt(2);
+
+Plane planes[5] = {
+    { Vec3{0, 0, 1}, -1 },
+    { Vec3{one_by_sqrt_two, 0, one_by_sqrt_two}, -1 },
+    { Vec3{-one_by_sqrt_two, 0, one_by_sqrt_two}, -1 },
+    { Vec3{0, one_by_sqrt_two, one_by_sqrt_two}, -1 },
+    { Vec3{0, -one_by_sqrt_two, one_by_sqrt_two}, -1 },
+};
 
 ObjectMode object_mode = ObjectMode::FILLED;
 
@@ -78,23 +90,9 @@ Scene_Rast create_scene_rast() {
 
     scene.objects.push_back({
         cube_mesh,
-        Vec3{5,5, 5},
+        Vec3{0.5,0.5, 0.5},
         Vec3{0, 0, 0},
-        Vec3{0, 0, 10}
-    });
-
-    scene.objects.push_back({
-        cube_mesh,
-        Vec3{1,1, 1},
-        Vec3{0, 0, 0},
-        Vec3{15, 15, 10}
-    });
-
-    scene.objects.push_back({
-        cube_mesh,
-        Vec3{2,2, 2},
-        Vec3{0, 0, 0},
-        Vec3{-15, -15, 10}
+        Vec3{0, 0, 2.5}
     });
 
     scene.object_mode = ObjectMode::FILLED;
@@ -104,15 +102,36 @@ Scene_Rast create_scene_rast() {
 
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
 
+    // std::vector<Object> clipped_objects = clip_scene(scene.objects, planes);
+
     Mat4 view = rotation_x_matrix(-scene.camera.rotation.x) *
                 rotation_y_matrix(-scene.camera.rotation.y) *
                 rotation_z_matrix(-scene.camera.rotation.z) *
-                translation_matrix(-scene.camera.position); 
+                translation_matrix(-scene.camera.position);
+
 
     for (Object& object: scene.objects) {
         render_object(renderer, object, view);
     }
 }
+
+// std::vector<Object> clip_scene(std::vector<Object>& objects, Plane planes[]) {
+//     std::vector<Object> clipped_objects;
+//     for (Object& object: objects) {
+//         Object clipped_object = clip_object(object, planes);
+//         clipped_objects.push_back(clipped_object); 
+//     }
+//     return clipped_objects;
+// };
+
+// Object clip_object(Object& object, std::span<Plane> planes) {
+//     Object clipped_object = object;
+//     for (Plane& plane: planes) {
+//         clipped_object = clip_object_against_plane(clipped_object, plane);
+//     }
+//     return clipped_object;
+// }
+
 
 void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
@@ -124,7 +143,6 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
     Mat4 view_model = view * model;
 
-    std::vector<Vec2> projected_vertices;
     std::vector<Vec4> transformed_vertices;
 
     for (const Vec3& v: object.mesh->vertices) {
@@ -132,20 +150,87 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
         Vec4 local{v.x, v.y, v.z, 1};
         Vec4 world = view_model * local;
 
-        projected_vertices.push_back(project_vertex(renderer, {world.x, world.y, world.z}));
         transformed_vertices.push_back(world);
     }
 
+    std::vector<Triangle3D> clipped_triangles;
+    
     for (const Triangle& t: object.mesh->triangles) {
-        if (
-            transformed_vertices[t.v[0]].z < 1 || 
-            transformed_vertices[t.v[1]].z < 1 || 
-            transformed_vertices[t.v[2]].z < 1
-        ) {
-            continue;
+        // if (
+        //     transformed_vertices[t.v[0]].z < 1 || 
+        //     transformed_vertices[t.v[1]].z < 1 || 
+        //     transformed_vertices[t.v[2]].z < 1
+        // ) {
+        //     continue;
+        // }
+
+
+        // ---------------------------------------------------------------------
+        // transformed_vertices has vertex in Vec4 format {x, y, z, w} intended
+        // for transformations using 4 by 4 matrices.
+
+        // We need to convert them into Vec3 format.
+        // ---------------------------------------------------------------------
+        Vec3 p0 = { 
+            transformed_vertices[t.v[0]].x, 
+            transformed_vertices[t.v[0]].y,
+            transformed_vertices[t.v[0]].z
+        };
+
+        Vec3 p1 = { 
+            transformed_vertices[t.v[1]].x, 
+            transformed_vertices[t.v[1]].y,
+            transformed_vertices[t.v[1]].z
+        };
+
+        Vec3 p2 = { 
+            transformed_vertices[t.v[2]].x, 
+            transformed_vertices[t.v[2]].y,
+            transformed_vertices[t.v[2]].z
+        };
+
+        Triangle3D triangle_to_clip = {p0, p1, p2, t.color};
+        
+        std::vector<Triangle3D> clipped = clip_triangle(triangle_to_clip, planes);
+        clipped_triangles.insert(clipped_triangles.end(), clipped.begin(), clipped.end());
+
+        for (Triangle3D& t: clipped_triangles) {
+            draw_triangle_wireframe(
+                renderer,
+                project_vertex(renderer, t.p0),
+                project_vertex(renderer, t.p1),
+                project_vertex(renderer, t.p2),
+                t.color
+            );
         }
-        render_triangle(renderer, t, projected_vertices);
+        
+        // render_triangle(renderer, t, projected_vertices);
     }
+}
+
+std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> planes) {
+    std::vector<Triangle3D> clipped;
+    for (Plane& plane: planes) {
+    }
+    return clipped;
+}
+
+std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane& plane) {
+    float d0 = signed_distance(triangle.p0, plane);
+    float d1 = signed_distance(triangle.p1, plane);
+    float d2 = signed_distance(triangle.p2, plane);
+
+    if (d0 > 0 && d1 > 0 && d2 > 0) {
+    }
+
+}
+
+float signed_distance(Vec3 vertex, Plane& plane) {
+    return 
+    vertex.x * plane.normal.x +
+    vertex.y * plane.normal.y +
+    vertex.z * plane.normal.z +
+    plane.D;
 }
 
 void render_triangle(Renderer& renderer, const Triangle& triangle, const std::vector<Vec2>& projected_vertices) {
