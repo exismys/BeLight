@@ -195,16 +195,8 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
         clipped_triangles.insert(clipped_triangles.end(), clipped.begin(), clipped.end());
 
         for (Triangle3D& t: clipped_triangles) {
-            draw_triangle_wireframe(
-                renderer,
-                project_vertex(renderer, t.p0),
-                project_vertex(renderer, t.p1),
-                project_vertex(renderer, t.p2),
-                t.color
-            );
+            render_triangle(renderer, t);
         }
-        
-        // render_triangle(renderer, t, projected_vertices);
     }
 }
 
@@ -337,22 +329,22 @@ Vec3 plane_line_intersection(Vec3 a, Vec3 b, Plane plane) {
     return intersection_point;
 }
 
-void render_triangle(Renderer& renderer, const Triangle& triangle, const std::vector<Vec2>& projected_vertices) {
+void render_triangle(Renderer& renderer, const Triangle3D& triangle) {
     if (object_mode == ObjectMode::FILLED) {
         draw_triangle_filled(
             renderer,
-            projected_vertices[triangle.v[0]],
-            projected_vertices[triangle.v[1]],
-            projected_vertices[triangle.v[2]],
+            project_vertex(renderer, triangle.p0),
+            project_vertex(renderer, triangle.p1),
+            project_vertex(renderer, triangle.p2),
             triangle.color
         );
         return;
     }
     draw_triangle_wireframe(
         renderer,
-        projected_vertices[triangle.v[0]],
-        projected_vertices[triangle.v[1]],
-        projected_vertices[triangle.v[2]],
+        project_vertex(renderer, triangle.p0),
+        project_vertex(renderer, triangle.p1),
+        project_vertex(renderer, triangle.p2),
         triangle.color
     );
 }
