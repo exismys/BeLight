@@ -228,7 +228,7 @@ int main() {
         Vec3 right = normalize(cross_product(Vec3{0, 1, 0}, forward));
 
         Vec3 movement{};
-        float speed = 0.5f;
+        float speed = 1.0f;
 
         if (keyboard[SDL_SCANCODE_W])
             movement += forward;

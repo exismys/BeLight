@@ -19,10 +19,10 @@ const float one_by_sqrt_two = 1 / std::sqrt(2);
 
 Plane planes[5] = {
     { Vec3{0, 0, 1}, -1 },
-    { Vec3{one_by_sqrt_two, 0, one_by_sqrt_two}, -1 },
-    { Vec3{-one_by_sqrt_two, 0, one_by_sqrt_two}, -1 },
-    { Vec3{0, one_by_sqrt_two, one_by_sqrt_two}, -1 },
-    { Vec3{0, -one_by_sqrt_two, one_by_sqrt_two}, -1 },
+    { Vec3{one_by_sqrt_two, 0, one_by_sqrt_two}, 0 },
+    { Vec3{-one_by_sqrt_two, 0, one_by_sqrt_two}, 0 },
+    { Vec3{0, one_by_sqrt_two, one_by_sqrt_two}, 0 },
+    { Vec3{0, -one_by_sqrt_two, one_by_sqrt_two}, 0 },
 };
 
 ObjectMode object_mode = ObjectMode::FILLED;
@@ -115,24 +115,6 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
     }
 }
 
-// std::vector<Object> clip_scene(std::vector<Object>& objects, Plane planes[]) {
-//     std::vector<Object> clipped_objects;
-//     for (Object& object: objects) {
-//         Object clipped_object = clip_object(object, planes);
-//         clipped_objects.push_back(clipped_object); 
-//     }
-//     return clipped_objects;
-// };
-
-// Object clip_object(Object& object, std::span<Plane> planes) {
-//     Object clipped_object = object;
-//     for (Plane& plane: planes) {
-//         clipped_object = clip_object_against_plane(clipped_object, plane);
-//     }
-//     return clipped_object;
-// }
-
-
 void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
     Mat4 model = translation_matrix(object.position) *
@@ -153,17 +135,7 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
         transformed_vertices.push_back(world);
     }
 
-    std::vector<Triangle3D> clipped_triangles;
-    
     for (const Triangle& t: object.mesh->triangles) {
-        // if (
-        //     transformed_vertices[t.v[0]].z < 1 || 
-        //     transformed_vertices[t.v[1]].z < 1 || 
-        //     transformed_vertices[t.v[2]].z < 1
-        // ) {
-        //     continue;
-        // }
-
 
         // ---------------------------------------------------------------------
         // transformed_vertices has vertex in Vec4 format {x, y, z, w} intended
@@ -192,9 +164,8 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
         Triangle3D triangle_to_clip = {p0, p1, p2, t.color};
         
         std::vector<Triangle3D> clipped = clip_triangle(triangle_to_clip, planes);
-        clipped_triangles.insert(clipped_triangles.end(), clipped.begin(), clipped.end());
 
-        for (Triangle3D& t: clipped_triangles) {
+        for (Triangle3D& t: clipped) {
             render_triangle(renderer, t);
         }
     }
