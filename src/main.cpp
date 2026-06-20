@@ -21,7 +21,7 @@
 #include "rasterizer.hpp"
 #include "text.hpp"
 
-constexpr uint32_t WIDTH = 2400;
+constexpr uint32_t WIDTH = 1200;
 constexpr uint32_t HEIGHT = 1200;
 
 int main() {
@@ -77,14 +77,15 @@ int main() {
         HEIGHT
     };
 
+    // Create scenes
     // Simulation simulation = create_simulation();
     Scene scene = create_scene(); // ray traced scene
-    Scene_Rast scene_rast = create_scene_rast();
-    
+    Scene_Rast scene_rast = create_scene_rast(); // rasterized scene
 
     // Load font
     Text text("assets/fonts/UbuntuMono[wght].ttf");
 
+    // Frame-time related vars
     auto start_time = std::chrono::steady_clock::now();
     double accumulator = 0.0;
     double frame_timer = 0.0;
@@ -92,6 +93,7 @@ int main() {
     float average_fps = 0;
     constexpr double dt = 1.0 / 60.0;
 
+    // Game-loop related vars
     bool running = true;
     bool export_frame = false;
 
@@ -99,7 +101,11 @@ int main() {
     SDL_Event event;
 
     while (running) {
-        // Process events
+
+        // ==============================================================
+        // Handle Events
+        // ==============================================================
+
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
@@ -157,17 +163,19 @@ int main() {
                 }
             }
 
-            // Mouse events
+            // Mouse wheel event
             if (event.type == SDL_MOUSEWHEEL) {
                 update_projection_plane_z(event.wheel.y * 0.1f);
             }
 
+            // Mouse button event
             // if (event.type == SDL_MOUSEBUTTONDOWN) {
             //     if (event.button.button == SDL_BUTTON_LEFT) {
             //     } else if (event.button.button == SDL_BUTTON_RIGHT) {
             //     }
             // }
 
+            // Mouse-Motion event
             if (event.type == SDL_MOUSEMOTION) {
 
                 const float sensitivity = 0.002f;
@@ -199,10 +207,13 @@ int main() {
                     1.5f
                 );
             }
+
         }
 
+        // ==============================================================
         // Camera movement
-        // -------------------------------------------------------------
+        // ==============================================================
+
         const Uint8* keyboard = SDL_GetKeyboardState(nullptr);
 
         float pitch = scene_rast.camera.rotation.x;
@@ -217,7 +228,7 @@ int main() {
         Vec3 right = normalize(cross_product(Vec3{0, 1, 0}, forward));
 
         Vec3 movement{};
-        float speed = 5.0f;
+        float speed = 0.5f;
 
         if (keyboard[SDL_SCANCODE_W])
             movement += forward;
@@ -232,7 +243,10 @@ int main() {
             movement = normalize(movement);
 
         scene_rast.camera.position += movement * speed * dt;
-        // -------------------------------------------------------------
+
+        // ==============================================================
+        // Update simulation
+        // ==============================================================
 
         auto end_time = std::chrono::steady_clock::now();
         double frame_time = std::chrono::duration<double>(end_time - start_time).count();
@@ -246,7 +260,6 @@ int main() {
             frame_count = 0;
         }
 
-        // Update simulation
         // Fixed timestep integration
         accumulator += frame_time;
         while (accumulator >= dt) {
@@ -254,21 +267,22 @@ int main() {
             accumulator -= dt;
         }
 
+        // ==============================================================
+        // Render scenes by modifying the framebuffer
+        // ==============================================================
+
         // Clear framebuffer
         std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
 
-        // Modify framebuffer
+        // Render scenes
         // render_simulation(renderer, simulation);
         // render_ray_traced_scene(renderer, scene);
-        // draw_line(renderer, {100, 100}, {500, 500}, Color{255, 255, 255, 255});
-        // draw_triangle_filled(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 0, 255});
-        // draw_triangle_shaded(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 0, 255}, 0.0, 0.0, 1.0);
-        // draw_triangle_wireframe(renderer, Vec2{-200, 200}, Vec2{200, 200}, Vec2{0, -200}, Color{255, 255, 255, 255});
-        // draw_cube(renderer);
         render_scene_rast(renderer, scene_rast);
-        // Render info
+
+        // Render text info
         text.draw_text(renderer, std::format("FPS: {:.2f}", average_fps), IVec2{10, 40}, 24.0f, Color{255, 255, 255, 255});
 
+        // Export current frame to a png image
         if (export_frame) {
             save_framebuffer(renderer, "rendered.png");
             export_frame = false;
@@ -284,6 +298,10 @@ int main() {
         SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
         SDL_RenderPresent(sdl_renderer);
     }
+
+    // ==============================================================
+    // Clean SDL
+    // ==============================================================
 
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(sdl_renderer);

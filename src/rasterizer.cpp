@@ -1,17 +1,31 @@
 #include <cmath>
 #include <memory>
+#include <span>
 #include <utility>
 #include <vector>
 #include <chrono>
+#include <iostream>
 
 #include "rasterizer.hpp"
 #include "mathematics.hpp"
 #include "renderer.hpp"
 #include "types.hpp"
 
-const float viewport_size_x = 10;
-const float viewport_size_y = 5;
+const float viewport_size_x = 1;
+const float viewport_size_y = 1;
 const float viewport_z = 1;
+
+const float one_by_sqrt_two = 1 / std::sqrt(2);
+
+Plane planes[5] = {
+    { Vec3{0, 0, 1}, -1 },
+    { Vec3{one_by_sqrt_two, 0, one_by_sqrt_two}, -1 },
+    { Vec3{-one_by_sqrt_two, 0, one_by_sqrt_two}, -1 },
+    { Vec3{0, one_by_sqrt_two, one_by_sqrt_two}, -1 },
+    { Vec3{0, -one_by_sqrt_two, one_by_sqrt_two}, -1 },
+};
+
+ObjectMode object_mode = ObjectMode::FILLED;
 
 auto start_time = std::chrono::steady_clock::now();
 
@@ -76,39 +90,48 @@ Scene_Rast create_scene_rast() {
 
     scene.objects.push_back({
         cube_mesh,
-        Vec3{5,5, 5},
+        Vec3{0.5,0.5, 0.5},
         Vec3{0, 0, 0},
-        Vec3{0, 0, 10}
+        Vec3{0, 0, 2.5}
     });
 
-    scene.objects.push_back({
-        cube_mesh,
-        Vec3{1,1, 1},
-        Vec3{0, 0, 0},
-        Vec3{15, 15, 10}
-    });
-
-    scene.objects.push_back({
-        cube_mesh,
-        Vec3{2,2, 2},
-        Vec3{0, 0, 0},
-        Vec3{-15, -15, 10}
-    });
+    scene.object_mode = ObjectMode::FILLED;
 
     return scene;
 }
 
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
 
+    // std::vector<Object> clipped_objects = clip_scene(scene.objects, planes);
+
     Mat4 view = rotation_x_matrix(-scene.camera.rotation.x) *
                 rotation_y_matrix(-scene.camera.rotation.y) *
                 rotation_z_matrix(-scene.camera.rotation.z) *
-                translation_matrix(-scene.camera.position); 
+                translation_matrix(-scene.camera.position);
+
 
     for (Object& object: scene.objects) {
         render_object(renderer, object, view);
     }
 }
+
+// std::vector<Object> clip_scene(std::vector<Object>& objects, Plane planes[]) {
+//     std::vector<Object> clipped_objects;
+//     for (Object& object: objects) {
+//         Object clipped_object = clip_object(object, planes);
+//         clipped_objects.push_back(clipped_object); 
+//     }
+//     return clipped_objects;
+// };
+
+// Object clip_object(Object& object, std::span<Plane> planes) {
+//     Object clipped_object = object;
+//     for (Plane& plane: planes) {
+//         clipped_object = clip_object_against_plane(clipped_object, plane);
+//     }
+//     return clipped_object;
+// }
+
 
 void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
@@ -120,7 +143,6 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
     Mat4 view_model = view * model;
 
-    std::vector<Vec2> projected_vertices;
     std::vector<Vec4> transformed_vertices;
 
     for (const Vec3& v: object.mesh->vertices) {
@@ -128,28 +150,201 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
         Vec4 local{v.x, v.y, v.z, 1};
         Vec4 world = view_model * local;
 
-        projected_vertices.push_back(project_vertex(renderer, {world.x, world.y, world.z}));
         transformed_vertices.push_back(world);
     }
 
+    std::vector<Triangle3D> clipped_triangles;
+    
     for (const Triangle& t: object.mesh->triangles) {
-        if (
-            transformed_vertices[t.v[0]].z < 1 || 
-            transformed_vertices[t.v[1]].z < 1 || 
-            transformed_vertices[t.v[2]].z < 1
-        ) {
-            continue;
+        // if (
+        //     transformed_vertices[t.v[0]].z < 1 || 
+        //     transformed_vertices[t.v[1]].z < 1 || 
+        //     transformed_vertices[t.v[2]].z < 1
+        // ) {
+        //     continue;
+        // }
+
+
+        // ---------------------------------------------------------------------
+        // transformed_vertices has vertex in Vec4 format {x, y, z, w} intended
+        // for transformations using 4 by 4 matrices.
+
+        // We need to convert them into Vec3 format.
+        // ---------------------------------------------------------------------
+        Vec3 p0 = { 
+            transformed_vertices[t.v[0]].x, 
+            transformed_vertices[t.v[0]].y,
+            transformed_vertices[t.v[0]].z
+        };
+
+        Vec3 p1 = { 
+            transformed_vertices[t.v[1]].x, 
+            transformed_vertices[t.v[1]].y,
+            transformed_vertices[t.v[1]].z
+        };
+
+        Vec3 p2 = { 
+            transformed_vertices[t.v[2]].x, 
+            transformed_vertices[t.v[2]].y,
+            transformed_vertices[t.v[2]].z
+        };
+
+        Triangle3D triangle_to_clip = {p0, p1, p2, t.color};
+        
+        std::vector<Triangle3D> clipped = clip_triangle(triangle_to_clip, planes);
+        clipped_triangles.insert(clipped_triangles.end(), clipped.begin(), clipped.end());
+
+        for (Triangle3D& t: clipped_triangles) {
+            render_triangle(renderer, t);
         }
-        render_triangle(renderer, t, projected_vertices);
     }
 }
 
-void render_triangle(Renderer& renderer, const Triangle& triangle, const std::vector<Vec2>& projected_vertices) {
+std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> planes) {
+    std::vector<Triangle3D> triangles = { triangle };
+
+    for (Plane& plane: planes) {
+
+        std::vector<Triangle3D> new_triagles;
+
+        for (Triangle3D& t: triangles) {
+            std::vector<Triangle3D> clipped = clip_triangle_against_plane(t, plane);
+            new_triagles.insert(
+                new_triagles.end(),
+                clipped.begin(),
+                clipped.end()
+            );
+        }
+
+        triangles = std::move(new_triagles);
+
+        if (triangles.empty()) {
+            break;
+        }
+    }
+
+    return triangles;
+}
+
+std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane& plane) {
+    float d0 = signed_distance(triangle.p0, plane);
+    float d1 = signed_distance(triangle.p1, plane);
+    float d2 = signed_distance(triangle.p2, plane);
+
+    if (d0 > 0 && d1 > 0 && d2 > 0) {
+        return {triangle};
+    }
+
+    if (d0 < 0 && d1 < 0 && d2 <0) {
+        return {};
+    }
+
+    // Case: only one inside
+
+    if (d0 > 0 && d1 < 0 && d2 < 0) {
+        Vec3 a = triangle.p0;
+        Vec3 b_dash = plane_line_intersection(triangle.p0, triangle.p1, plane);
+        Vec3 c_dash = plane_line_intersection(triangle.p0, triangle.p2, plane);
+        return { Triangle3D{a, b_dash, c_dash, triangle.color} };
+    }
+
+    if (d0 < 0 && d1 > 0 && d2 < 0) {
+        Vec3 a_dash = plane_line_intersection(triangle.p1, triangle.p0, plane);
+        Vec3 b = triangle.p1;
+        Vec3 c_dash = plane_line_intersection(triangle.p1, triangle.p2, plane);
+        return { Triangle3D{a_dash, b, c_dash, triangle.color} };
+    }
+
+    if (d0 < 0 && d1 < 0 && d2 > 0) {
+        Vec3 a_dash = plane_line_intersection(triangle.p2, triangle.p0, plane);
+        Vec3 b_dash = plane_line_intersection(triangle.p2, triangle.p1, plane);
+        Vec3 c = triangle.p2;
+        return { Triangle3D{a_dash, b_dash, c, triangle.color} };
+    }
+
+    // Case : two inside
+
+    if (d0 > 0 && d1 > 0 && d2 < 0) {
+        Vec3 a = triangle.p0;
+        Vec3 b = triangle.p1;
+        Vec3 a_dash = plane_line_intersection(triangle.p0, triangle.p2, plane);
+        Vec3 b_dash = plane_line_intersection(triangle.p1, triangle.p2, plane);
+        return {
+            {a, b, a_dash, triangle.color},
+            {a_dash, b, b_dash, triangle.color}
+        };
+    }
+
+    if (d0 > 0 && d1 < 0 && d2 > 0) {
+        Vec3 a = triangle.p0;
+        Vec3 c = triangle.p2; 
+        Vec3 a_dash = plane_line_intersection(triangle.p0, triangle.p1, plane);
+        Vec3 c_dash = plane_line_intersection(triangle.p2, triangle.p1, plane);
+        return {
+            {a,  c, a_dash, triangle.color},
+            {a_dash, c, c_dash, triangle.color}
+        };
+    }
+
+    if (d0 < 0 && d1 > 0 && d2 > 0) {
+        Vec3 b = triangle.p1;
+        Vec3 c = triangle.p2;
+        Vec3 b_dash = plane_line_intersection(triangle.p1, triangle.p0, plane);
+        Vec3 c_dash = plane_line_intersection(triangle.p2, triangle.p0, plane);
+        return {
+            {b, c, b_dash, triangle.color},
+            {b_dash, c, c_dash, triangle.color}
+        };
+    }
+
+    return {};
+}
+
+float signed_distance(Vec3 vertex, Plane& plane) {
+    return 
+    vertex.x * plane.normal.x +
+    vertex.y * plane.normal.y +
+    vertex.z * plane.normal.z +
+    plane.D;
+}
+
+Vec3 plane_line_intersection(Vec3 a, Vec3 b, Plane plane) {
+
+    // ---------------------------------------------------------------------
+    // We have plane equation: n . p + D = 0
+    // Side ab can be expressed with a parametric equation: p = a + t(b - a)
+
+    // Point p, at some point, must lie on the plane, if it's to intersect.
+    // So, it must satisfy the the equation of the plane: 
+    // n . (a + t(b - a)) + D = 0
+
+    // From this, we get the value of t, and subsequently the point of
+    // intersection from the parametric equation by substituting the value 
+    // of t.
+    // ---------------------------------------------------------------------
+    float t = ( - plane.D - dot_product(plane.normal, a) ) / dot_product(plane.normal, b - a);
+
+    Vec3 intersection_point = a + t * (b -a);
+
+    return intersection_point;
+}
+
+void render_triangle(Renderer& renderer, const Triangle3D& triangle) {
+    if (object_mode == ObjectMode::FILLED) {
+        draw_triangle_filled(
+            renderer,
+            project_vertex(renderer, triangle.p0),
+            project_vertex(renderer, triangle.p1),
+            project_vertex(renderer, triangle.p2),
+            triangle.color
+        );
+        return;
+    }
     draw_triangle_wireframe(
         renderer,
-        projected_vertices[triangle.v[0]],
-        projected_vertices[triangle.v[1]],
-        projected_vertices[triangle.v[2]],
+        project_vertex(renderer, triangle.p0),
+        project_vertex(renderer, triangle.p1),
+        project_vertex(renderer, triangle.p2),
         triangle.color
     );
 }
