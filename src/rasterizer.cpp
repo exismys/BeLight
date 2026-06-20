@@ -250,29 +250,62 @@ std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane&
     // Case: only one inside
 
     if (d0 > 0 && d1 < 0 && d2 < 0) {
-
-
+        Vec3 a = triangle.p0;
+        Vec3 b_dash = plane_line_intersection(triangle.p0, triangle.p1, plane);
+        Vec3 c_dash = plane_line_intersection(triangle.p0, triangle.p2, plane);
+        return { Triangle3D{a, b_dash, c_dash, triangle.color} };
     }
 
     if (d0 < 0 && d1 > 0 && d2 < 0) {
-
+        Vec3 a_dash = plane_line_intersection(triangle.p1, triangle.p0, plane);
+        Vec3 b = triangle.p1;
+        Vec3 c_dash = plane_line_intersection(triangle.p1, triangle.p2, plane);
+        return { Triangle3D{a_dash, b, c_dash, triangle.color} };
     }
 
     if (d0 < 0 && d1 < 0 && d2 > 0) {
-
+        Vec3 a_dash = plane_line_intersection(triangle.p2, triangle.p0, plane);
+        Vec3 b_dash = plane_line_intersection(triangle.p2, triangle.p1, plane);
+        Vec3 c = triangle.p2;
+        return { Triangle3D{a_dash, b_dash, c, triangle.color} };
     }
 
     // Case : two inside
 
     if (d0 > 0 && d1 > 0 && d2 < 0) {
-
+        Vec3 a = triangle.p0;
+        Vec3 b = triangle.p1;
+        Vec3 a_dash = plane_line_intersection(triangle.p0, triangle.p2, plane);
+        Vec3 b_dash = plane_line_intersection(triangle.p1, triangle.p2, plane);
+        return {
+            {a, b, a_dash, triangle.color},
+            {a_dash, b, b_dash, triangle.color}
+        };
     }
 
     if (d0 > 0 && d1 < 0 && d2 > 0) {
+        Vec3 a = triangle.p0;
+        Vec3 c = triangle.p2; 
+        Vec3 a_dash = plane_line_intersection(triangle.p0, triangle.p1, plane);
+        Vec3 c_dash = plane_line_intersection(triangle.p2, triangle.p1, plane);
+        return {
+            {a,  c, a_dash, triangle.color},
+            {a_dash, c, c_dash, triangle.color}
+        };
     }
 
     if (d0 < 0 && d1 > 0 && d2 > 0) {
+        Vec3 b = triangle.p1;
+        Vec3 c = triangle.p2;
+        Vec3 b_dash = plane_line_intersection(triangle.p1, triangle.p0, plane);
+        Vec3 c_dash = plane_line_intersection(triangle.p2, triangle.p0, plane);
+        return {
+            {b, c, b_dash, triangle.color},
+            {b_dash, c, c_dash, triangle.color}
+        };
     }
+
+    return {};
 }
 
 float signed_distance(Vec3 vertex, Plane& plane) {
@@ -281,6 +314,27 @@ float signed_distance(Vec3 vertex, Plane& plane) {
     vertex.y * plane.normal.y +
     vertex.z * plane.normal.z +
     plane.D;
+}
+
+Vec3 plane_line_intersection(Vec3 a, Vec3 b, Plane plane) {
+
+    // ---------------------------------------------------------------------
+    // We have plane equation: n . p + D = 0
+    // Side ab can be expressed with a parametric equation: p = a + t(b - a)
+
+    // Point p, at some point, must lie on the plane, if it's to intersect.
+    // So, it must satisfy the the equation of the plane: 
+    // n . (a + t(b - a)) + D = 0
+
+    // From this, we get the value of t, and subsequently the point of
+    // intersection from the parametric equation by substituting the value 
+    // of t.
+    // ---------------------------------------------------------------------
+    float t = ( - plane.D - dot_product(plane.normal, a) ) / dot_product(plane.normal, b - a);
+
+    Vec3 intersection_point = a + t * (b -a);
+
+    return intersection_point;
 }
 
 void render_triangle(Renderer& renderer, const Triangle& triangle, const std::vector<Vec2>& projected_vertices) {

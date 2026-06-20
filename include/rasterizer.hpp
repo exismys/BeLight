@@ -64,6 +64,7 @@ Object clip_object(Object& object, Plane planes[]);
 Object clip_object_against_plane(Object object, Plane plane);
 std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> planes);
 std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane& plane);
+Vec3 plane_line_intersection(Vec3 a, Vec3 b, Plane plane);
 float signed_distance(Vec3 vertex, Plane& plane);
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene);
 Mesh create_cube_mesh();
