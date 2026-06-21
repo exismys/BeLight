@@ -102,8 +102,6 @@ Scene_Rast create_scene_rast() {
 
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
 
-    // std::vector<Object> clipped_objects = clip_scene(scene.objects, planes);
-
     Mat4 view = rotation_x_matrix(-scene.camera.rotation.x) *
                 rotation_y_matrix(-scene.camera.rotation.y) *
                 rotation_z_matrix(-scene.camera.rotation.z) *
@@ -137,12 +135,12 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
     for (const Triangle& t: object.mesh->triangles) {
 
-        // ---------------------------------------------------------------------
+        //----------------------------------------------------------------------
         // transformed_vertices has vertex in Vec4 format {x, y, z, w} intended
         // for transformations using 4 by 4 matrices.
 
         // We need to convert them into Vec3 format.
-        // ---------------------------------------------------------------------
+        //----------------------------------------------------------------------
         Vec3 p0 = { 
             transformed_vertices[t.v[0]].x, 
             transformed_vertices[t.v[0]].y,
@@ -160,6 +158,7 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
             transformed_vertices[t.v[2]].y,
             transformed_vertices[t.v[2]].z
         };
+        //----------------------------------------------------------------------
 
         Triangle3D triangle_to_clip = {p0, p1, p2, t.color};
         
@@ -210,7 +209,7 @@ std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane&
         return {};
     }
 
-    // Case: only one inside
+    // Case: only one of the vertices is inside
 
     if (d0 > 0 && d1 < 0 && d2 < 0) {
         Vec3 a = triangle.p0;
@@ -233,7 +232,7 @@ std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane&
         return { Triangle3D{a_dash, b_dash, c, triangle.color} };
     }
 
-    // Case : two inside
+    // Case: two of the vertices are inside
 
     if (d0 > 0 && d1 > 0 && d2 < 0) {
         Vec3 a = triangle.p0;
@@ -281,7 +280,7 @@ float signed_distance(Vec3 vertex, Plane& plane) {
 
 Vec3 plane_line_intersection(Vec3 a, Vec3 b, Plane plane) {
 
-    // ---------------------------------------------------------------------
+    //----------------------------------------------------------------------
     // We have plane equation: n . p + D = 0
     // Side ab can be expressed with a parametric equation: p = a + t(b - a)
 
@@ -292,7 +291,7 @@ Vec3 plane_line_intersection(Vec3 a, Vec3 b, Plane plane) {
     // From this, we get the value of t, and subsequently the point of
     // intersection from the parametric equation by substituting the value 
     // of t.
-    // ---------------------------------------------------------------------
+    //----------------------------------------------------------------------
     float t = ( - plane.D - dot_product(plane.normal, a) ) / dot_product(plane.normal, b - a);
 
     Vec3 intersection_point = a + t * (b -a);

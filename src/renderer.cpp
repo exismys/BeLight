@@ -66,3 +66,24 @@ void put_pixel(Renderer& renderer, IVec2 screen_point, Color color) {
     );
     renderer.framebuffer[screen_point.y * renderer.width + screen_point.x] = rgba;
 }
+
+//=============================================================
+// Depth Buffer
+//=============================================================
+void update_depth_buffer(Renderer& renderer, const Vec2 world_point, float z_value) {
+    IVec2 screen_point = world_to_screen(renderer, world_point);
+
+    if (screen_point.x >= renderer.width || screen_point.x < 0 ||
+        screen_point.y >= renderer.height || screen_point.y < 0
+    ) {
+        return;
+    }
+
+    renderer.depth_buffer[screen_point.y * renderer.width + screen_point.x] = z_value;
+}
+
+float get_depth_buffer(Renderer& renderer, const Vec2 world_point) {
+    IVec2 screen_point = world_to_screen(renderer, world_point);
+    return renderer.depth_buffer[screen_point.y * renderer.width + screen_point.x];
+}
+//=============================================================

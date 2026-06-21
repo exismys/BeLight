@@ -8,6 +8,7 @@
 
 struct Renderer {
     std::vector<uint32_t> framebuffer;
+    std::vector<float> depth_buffer;
     int width;
     int height;
 };
@@ -28,3 +29,7 @@ void save_framebuffer(Renderer& renderer, const char* filename);
 void draw_point(Renderer& renderer, Vec2 world_point, Color color);
 IVec2 world_to_screen(const Renderer& Renderer, const Vec2 point);
 void put_pixel(Renderer& renderer, IVec2 screen_point, Color color);
+
+// Depth Buffer
+void update_depth_buffer(Renderer& renderer, const Vec2 world_point, float z_value);
+float get_depth_buffer(Renderer& renderer, const Vec2 world_point);
