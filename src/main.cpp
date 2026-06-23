@@ -1,16 +1,15 @@
 
-#include <SDL_keyboard.h>
-#include <SDL_scancode.h>
-#include <SDL_stdinc.h>
 #include <cmath>
 #include <format>
 #include <iostream>
 #include <cstdint>
-#include <numbers>
-#include <string>
+#include <limits>
 #include <vector>
 #include <chrono>
 
+#include <SDL_keyboard.h>
+#include <SDL_scancode.h>
+#include <SDL_stdinc.h>
 #include <SDL2/SDL.h>
 #include <SDL_keycode.h>
 
@@ -20,9 +19,7 @@
 #include "ray_tracer.hpp"
 #include "rasterizer.hpp"
 #include "text.hpp"
-
-constexpr uint32_t WIDTH = 1200;
-constexpr uint32_t HEIGHT = 1200;
+#include "constants.hpp"
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -73,6 +70,7 @@ int main() {
 
     Renderer renderer{
         std::vector<uint32_t>(WIDTH * HEIGHT),
+        std::vector<float>(WIDTH * HEIGHT, std::numeric_limits<float>::infinity()),
         WIDTH,
         HEIGHT
     };
@@ -102,10 +100,9 @@ int main() {
 
     while (running) {
 
-        // ==============================================================
+        //===============================================================
         // Handle Events
-        // ==============================================================
-
+        //===============================================================
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
@@ -180,7 +177,7 @@ int main() {
 
                 const float sensitivity = 0.002f;
 
-                // ------------------------------------------------------------------
+                //-------------------------------------------------------------------
                 // event.motion.xrel = +ve when the mouse moves right.
 
                 // Coordinate system convention: +ve yaw = anti-clockwise rotation
@@ -188,18 +185,20 @@ int main() {
 
                 // We need camera to turn right for +ve yaw.
                 // So, we make the event.motion.xrel -ve.
-                // ------------------------------------------------------------------
+                //-------------------------------------------------------------------
                 scene_rast.camera.rotation.y += -event.motion.xrel * sensitivity;
+                //-------------------------------------------------------------------
 
-                // ------------------------------------------------------------------
+                //-------------------------------------------------------------------
                 // event.motion.xrel = +ve when the mouse moves down.
 
                 // Coordinate system convention: +ve pitch = anti-clockwise rotation
                 // about x-axis (camera turns down).
 
                 // We need this behavior to remain same.
-                // ------------------------------------------------------------------
+                //-------------------------------------------------------------------
                 scene_rast.camera.rotation.x += event.motion.yrel * sensitivity;
+                //-------------------------------------------------------------------
 
                 scene_rast.camera.rotation.x = std::clamp(
                     scene_rast.camera.rotation.x,
@@ -207,13 +206,13 @@ int main() {
                     1.5f
                 );
             }
-
         }
+        //===============================================================
 
-        // ==============================================================
+
+        //===============================================================
         // Camera movement
-        // ==============================================================
-
+        //===============================================================
         const Uint8* keyboard = SDL_GetKeyboardState(nullptr);
 
         float pitch = scene_rast.camera.rotation.x;
@@ -243,11 +242,11 @@ int main() {
             movement = normalize(movement);
 
         scene_rast.camera.position += movement * speed * dt;
+        //===============================================================
 
-        // ==============================================================
+        //===============================================================
         // Update simulation
-        // ==============================================================
-
+        //===============================================================
         auto end_time = std::chrono::steady_clock::now();
         double frame_time = std::chrono::duration<double>(end_time - start_time).count();
         start_time = end_time;
@@ -266,13 +265,13 @@ int main() {
             // update_simulation(simulation, dt);
             accumulator -= dt;
         }
+        //===============================================================
 
-        // ==============================================================
+        //===============================================================
         // Render scenes by modifying the framebuffer
-        // ==============================================================
-
-        // Clear framebuffer
-        std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020);
+        //===============================================================
+        std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020); // Clear framebuffer
+        std::fill(renderer.depth_buffer.begin(), renderer.depth_buffer.end(), std::numeric_limits<float>::infinity()); // Clear depth buffer
 
         // Render scenes
         // render_simulation(renderer, simulation);
@@ -297,17 +296,18 @@ int main() {
 
         SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
         SDL_RenderPresent(sdl_renderer);
+        //===============================================================
     }
 
-    // ==============================================================
+    //===============================================================
     // Clean SDL
-    // ==============================================================
-
+    //===============================================================
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(window);
 
     SDL_Quit();
+    //===============================================================
 
     return 0;
 }
