@@ -271,6 +271,7 @@ int main() {
         // Render scenes by modifying the framebuffer
         //===============================================================
         std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020); // Clear framebuffer
+        std::fill(renderer.depth_buffer.begin(), renderer.depth_buffer.end(), std::numeric_limits<float>::infinity()); // Clear depth buffer
 
         // Render scenes
         // render_simulation(renderer, simulation);

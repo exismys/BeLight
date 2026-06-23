@@ -32,4 +32,4 @@ void put_pixel(Renderer& renderer, IVec2 screen_point, Color color);
 
 // Depth Buffer
 void update_depth_buffer(Renderer& renderer, const Vec2 world_point, float z_value);
-float get_depth_buffer(Renderer& renderer, const Vec2 world_point);
+float get_depth_value(Renderer& renderer, const Vec2 world_point);

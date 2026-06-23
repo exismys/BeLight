@@ -82,7 +82,7 @@ void update_depth_buffer(Renderer& renderer, const Vec2 world_point, float z_val
     renderer.depth_buffer[screen_point.y * renderer.width + screen_point.x] = z_value;
 }
 
-float get_depth_buffer(Renderer& renderer, const Vec2 world_point) {
+float get_depth_value(Renderer& renderer, const Vec2 world_point) {
     IVec2 screen_point = world_to_screen(renderer, world_point);
     return renderer.depth_buffer[screen_point.y * renderer.width + screen_point.x];
 }

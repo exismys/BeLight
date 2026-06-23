@@ -303,10 +303,7 @@ void render_triangle(Renderer& renderer, const Triangle3D& triangle) {
     if (object_mode == ObjectMode::FILLED) {
         draw_triangle_filled(
             renderer,
-            project_vertex(renderer, triangle.p0),
-            project_vertex(renderer, triangle.p1),
-            project_vertex(renderer, triangle.p2),
-            triangle.color
+            triangle
         );
         return;
     }
@@ -396,34 +393,104 @@ void draw_triangle_shaded(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color c
     }
 }
 
-void draw_triangle_filled(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color) {
-    if (p1.y > p2.y) std::swap(p1, p2);
-    if (p1.y > p3.y) std::swap(p1, p3);
-    if (p2.y > p3.y) std::swap(p2, p3);
+void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle) {
 
-    std::vector<float> x_values_p12 = interpolate(swap_components(p1), swap_components(p2));
-    std::vector<float> x_values_p23 = interpolate(swap_components(p2), swap_components(p3));
-    std::vector<float> x_values_p13 = interpolate(swap_components(p1), swap_components(p3));
+    Vec3 t1 = triangle.p0;
+    Vec3 t2 = triangle.p1;
+    Vec3 t3 = triangle.p2;
+
+    Vec2 p1 = project_vertex(renderer, triangle.p0);
+    Vec2 p2 = project_vertex(renderer, triangle.p1);
+    Vec2 p3 = project_vertex(renderer, triangle.p2);
+
+    if (p1.y > p2.y) {
+        std::swap(p1, p2);
+        std::swap(t1, t2);
+    }
+    if (p1.y > p3.y) {
+        std::swap(p1, p3);
+        std::swap(t1, t3);
+    }
+    if (p2.y > p3.y) {
+        std::swap(p2, p3);
+        std::swap(t2, t3);
+    }
+
+    std::vector<float> x_values_p12 = interpolate(
+        Vec2{p1.y, p1.x},
+        Vec2{p2.y, p2.x} 
+    );
+
+    std::vector<float> x_values_p23 = interpolate(
+        Vec2{p2.y, p2.x},
+        Vec2{p3.y, p3.x} 
+    );
+
+    std::vector<float> x_values_p13 = interpolate(
+        Vec2{p1.y, p1.x},
+        Vec2{p3.y, p3.x} 
+    );
+
+    std::vector<float> z_values_p12 = interpolate(
+        Vec2{p1.y, t1.z},
+        Vec2{p2.y, t2.z} 
+    );
+
+    std::vector<float> z_values_p23 = interpolate(
+        Vec2{p2.y, t2.z},
+        Vec2{p3.y, t3.z} 
+    );
+
+    std::vector<float> z_values_p13 = interpolate(
+        Vec2{p1.y, t1.z},
+        Vec2{p3.y, t3.z} 
+    );
 
     x_values_p12.pop_back();
     std::vector<float> x_values_p123 = x_values_p12;
     x_values_p123.insert(x_values_p123.end(), x_values_p23.begin(), x_values_p23.end());
 
+    z_values_p12.pop_back();
+    std::vector<float> z_values_p123 = z_values_p12;
+    z_values_p123.insert(z_values_p123.end(), z_values_p23.begin(), z_values_p23.end());
+
     int mid = x_values_p12.size() / 2;
-    std::vector<float> x_values_left, x_values_right;
+    std::vector<float> x_values_left, x_values_right, z_values_left, z_values_right;
     if (x_values_p13[mid] < x_values_p123[mid]) {
         x_values_left = x_values_p13;
         x_values_right = x_values_p123;
+        z_values_left = z_values_p13;
+        z_values_right = z_values_p123;
     } else {
         x_values_left = x_values_p123;
         x_values_right = x_values_p13;
+        z_values_left = z_values_p123;
+        z_values_right = z_values_p13;
     }
 
     for (int y = std::round(p1.y); y <= std::round(p3.y); y++) {
-        for (int x = x_values_left[y - p1.y]; x <= x_values_right[y - p1.y]; x++) {
-            draw_point(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, color);
+        float x_left = x_values_left[y - p1.y];
+        float x_right = x_values_right[y - p1.y];
+        float z_left = z_values_left[y - p1.y];
+        float z_right = z_values_right[y - p1.y];
+
+        std::vector<float> z_values = interpolate(Vec2{x_left, z_left}, Vec2{x_right, z_right});
+
+        for (int x = std::round(x_left); x <= std::round(x_right); x++) {
+            float z_value = z_values[x - x_left];
+
+            if (z_value < get_depth_value(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)})) {
+                draw_point(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, triangle.color);
+                update_depth_buffer(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, z_value);
+            }
         }
     }
+
+    // for (int y = std::round(p1.y); y <= std::round(p3.y); y++) {
+    //     for (int x = x_values_left[y - p1.y]; x <= x_values_right[y - p1.y]; x++) {
+    //         draw_point(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, triangle.color);
+    //     }
+    // }
 }
 
 void draw_triangle_wireframe(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color) {
