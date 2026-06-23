@@ -474,23 +474,25 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle) {
         float z_left = z_values_left[y - p1.y];
         float z_right = z_values_right[y - p1.y];
 
-        std::vector<float> z_values = interpolate(Vec2{x_left, z_left}, Vec2{x_right, z_right});
+        //----------------------------------------------------------------------
+        // We are avoiding using interpolate function here because it's doing
+        // heap allocation for each scanline per frame causing a drop in frame
+        // rate.
+        // std::vector<float> z_values = interpolate(Vec2{x_left, z_left}, Vec2{x_right, z_right});
+
+        // Instead, we are calculating z_value manually.
+        //----------------------------------------------------------------------
+        float z_value = z_left;
+        float dz = (z_right - z_left) / (x_right - x_left);
 
         for (int x = std::round(x_left); x <= std::round(x_right); x++) {
-            float z_value = z_values[x - x_left];
-
             if (z_value < get_depth_value(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)})) {
                 draw_point(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, triangle.color);
                 update_depth_buffer(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, z_value);
+                z_value += dz;
             }
         }
     }
-
-    // for (int y = std::round(p1.y); y <= std::round(p3.y); y++) {
-    //     for (int x = x_values_left[y - p1.y]; x <= x_values_right[y - p1.y]; x++) {
-    //         draw_point(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, triangle.color);
-    //     }
-    // }
 }
 
 void draw_triangle_wireframe(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color) {
