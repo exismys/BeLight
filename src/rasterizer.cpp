@@ -116,9 +116,9 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
 void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
     Mat4 model = translation_matrix(object.position) *
-                 rotation_z_matrix(object.rotation.z) *
+                 rotation_z_matrix(/*object.rotation.z*/ get_runtime_seconds()) *
                  rotation_y_matrix(object.rotation.y) *
-                 rotation_x_matrix(object.rotation.x) *
+                 rotation_x_matrix(/*object.rotation.x*/ get_runtime_seconds()) *
                  scale_matrix(object.scale);
 
     Mat4 view_model = view * model;
@@ -431,48 +431,48 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle) {
         Vec2{p3.y, p3.x} 
     );
 
-    std::vector<float> z_values_p12 = interpolate(
-        Vec2{p1.y, t1.z},
-        Vec2{p2.y, t2.z} 
+    std::vector<float> one_by_z_values_p12 = interpolate(
+        Vec2{p1.y, 1 / t1.z},
+        Vec2{p2.y, 1 / t2.z} 
     );
 
-    std::vector<float> z_values_p23 = interpolate(
-        Vec2{p2.y, t2.z},
-        Vec2{p3.y, t3.z} 
+    std::vector<float> one_by_z_values_p23 = interpolate(
+        Vec2{p2.y, 1 / t2.z},
+        Vec2{p3.y, 1 / t3.z} 
     );
 
-    std::vector<float> z_values_p13 = interpolate(
-        Vec2{p1.y, t1.z},
-        Vec2{p3.y, t3.z} 
+    std::vector<float> one_by_z_values_p13 = interpolate(
+        Vec2{p1.y, 1 / t1.z},
+        Vec2{p3.y, 1 / t3.z} 
     );
 
     x_values_p12.pop_back();
     std::vector<float> x_values_p123 = x_values_p12;
     x_values_p123.insert(x_values_p123.end(), x_values_p23.begin(), x_values_p23.end());
 
-    z_values_p12.pop_back();
-    std::vector<float> z_values_p123 = z_values_p12;
-    z_values_p123.insert(z_values_p123.end(), z_values_p23.begin(), z_values_p23.end());
+    one_by_z_values_p12.pop_back();
+    std::vector<float> one_by_z_values_p123 = one_by_z_values_p12;
+    one_by_z_values_p123.insert(one_by_z_values_p123.end(), one_by_z_values_p23.begin(), one_by_z_values_p23.end());
 
     int mid = x_values_p12.size() / 2;
-    std::vector<float> x_values_left, x_values_right, z_values_left, z_values_right;
+    std::vector<float> x_values_left, x_values_right, one_by_z_values_left, one_by_z_values_right;
     if (x_values_p13[mid] < x_values_p123[mid]) {
         x_values_left = x_values_p13;
         x_values_right = x_values_p123;
-        z_values_left = z_values_p13;
-        z_values_right = z_values_p123;
+        one_by_z_values_left = one_by_z_values_p13;
+        one_by_z_values_right = one_by_z_values_p123;
     } else {
         x_values_left = x_values_p123;
         x_values_right = x_values_p13;
-        z_values_left = z_values_p123;
-        z_values_right = z_values_p13;
+        one_by_z_values_left = one_by_z_values_p123;
+        one_by_z_values_right = one_by_z_values_p13;
     }
 
     for (int y = std::round(p1.y); y <= std::round(p3.y); y++) {
         float x_left = x_values_left[y - p1.y];
         float x_right = x_values_right[y - p1.y];
-        float z_left = z_values_left[y - p1.y];
-        float z_right = z_values_right[y - p1.y];
+        float one_by_z_left = one_by_z_values_left[y - p1.y];
+        float one_by_z_right = one_by_z_values_right[y - p1.y];
 
         //----------------------------------------------------------------------
         // We are avoiding using interpolate function here because it's doing
@@ -482,15 +482,15 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle) {
 
         // Instead, we are calculating z_value manually.
         //----------------------------------------------------------------------
-        float z_value = z_left;
-        float dz = (z_right - z_left) / (x_right - x_left);
+        float one_by_z_value = one_by_z_left;
+        float d_one_by_z = (one_by_z_right - one_by_z_left) / (x_right - x_left);
 
         for (int x = std::round(x_left); x <= std::round(x_right); x++) {
-            if (z_value < get_depth_value(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)})) {
+            if (one_by_z_value > get_depth_value(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)})) {
                 draw_point(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, triangle.color);
-                update_depth_buffer(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, z_value);
-                z_value += dz;
+                update_depth_buffer(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, one_by_z_value);
             }
+            one_by_z_value += d_one_by_z;
         }
     }
 }
