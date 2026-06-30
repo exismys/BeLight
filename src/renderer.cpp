@@ -70,7 +70,7 @@ void put_pixel(Renderer& renderer, IVec2 screen_point, Color color) {
 //=============================================================
 // Depth Buffer
 //=============================================================
-void update_depth_buffer(Renderer& renderer, const Vec2 world_point, float z_value) {
+void update_depth_buffer(Renderer& renderer, const Vec2 world_point, float one_by_z_value) {
     IVec2 screen_point = world_to_screen(renderer, world_point);
 
     if (screen_point.x >= renderer.width || screen_point.x < 0 ||
@@ -79,7 +79,7 @@ void update_depth_buffer(Renderer& renderer, const Vec2 world_point, float z_val
         return;
     }
 
-    renderer.depth_buffer[screen_point.y * renderer.width + screen_point.x] = z_value;
+    renderer.depth_buffer[screen_point.y * renderer.width + screen_point.x] = one_by_z_value;
 }
 
 float get_depth_value(Renderer& renderer, const Vec2 world_point) {

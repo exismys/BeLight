@@ -70,7 +70,7 @@ int main() {
 
     Renderer renderer{
         std::vector<uint32_t>(WIDTH * HEIGHT),
-        std::vector<float>(WIDTH * HEIGHT, std::numeric_limits<float>::infinity()),
+        std::vector<float>(WIDTH * HEIGHT, 0.0f),
         WIDTH,
         HEIGHT
     };
@@ -116,6 +116,7 @@ int main() {
                     renderer.width = width;
                     renderer.height = height;
                     renderer.framebuffer.resize(width * height);
+                    renderer.depth_buffer.resize(width * height);
                     SDL_DestroyTexture(texture);
                     texture = SDL_CreateTexture(
                         sdl_renderer,
@@ -271,7 +272,7 @@ int main() {
         // Render scenes by modifying the framebuffer
         //===============================================================
         std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020); // Clear framebuffer
-        std::fill(renderer.depth_buffer.begin(), renderer.depth_buffer.end(), std::numeric_limits<float>::infinity()); // Clear depth buffer
+        std::fill(renderer.depth_buffer.begin(), renderer.depth_buffer.end(), 0.0f); // Clear depth buffer 
 
         // Render scenes
         // render_simulation(renderer, simulation);
