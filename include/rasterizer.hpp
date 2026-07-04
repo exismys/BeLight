@@ -59,6 +59,7 @@ struct Scene_Rast {
 };
 
 Scene_Rast create_scene_rast();
+bool is_back_face(Triangle3D& triangle);
 std::vector<Object> clip_scene(std::vector<Object>& objects, Plane planes[]);
 Object clip_object(Object& object, Plane planes[]);
 Object clip_object_against_plane(Object object, Plane plane);

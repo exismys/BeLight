@@ -161,13 +161,31 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
         //----------------------------------------------------------------------
 
         Triangle3D triangle_to_clip = {p0, p1, p2, t.color};
-        
+
+        if (is_back_face(triangle_to_clip)) {
+            continue;
+        }
+
         std::vector<Triangle3D> clipped = clip_triangle(triangle_to_clip, planes);
 
         for (Triangle3D& t: clipped) {
             render_triangle(renderer, t);
         }
     }
+}
+
+bool is_back_face(Triangle3D& triangle) {
+    Vec3 p0p1 = triangle.p1 - triangle.p0;
+    Vec3 p0p2 = triangle.p2 - triangle.p0;
+
+    Vec3 normal = cross_product(p0p1, p0p2);
+
+    Vec3 view_vector = - triangle.p0;
+
+    if (dot_product(normal, view_vector) <= 0) {
+        return true;
+    }
+    return false;
 }
 
 std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> planes) {
