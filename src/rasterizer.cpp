@@ -97,6 +97,30 @@ Scene_Rast create_scene_rast() {
 
     scene.object_mode = ObjectMode::FILLED;
 
+    std::vector<LightRast> light_sources;
+    light_sources.push_back(
+        LightRast{
+            .type = LightTypeRast::Ambient,
+            .intensity = 0.2, 
+        }
+    );
+    light_sources.push_back(
+        LightRast{
+            .type = LightTypeRast::Point,
+            .intensity = 0.6, 
+            .position = Vec3{2, 1, 0},
+        }
+    );
+    light_sources.push_back(
+        LightRast{
+            .type = LightTypeRast::Directional,
+            .intensity = 0.2, 
+            .direction = Vec3{1, 4, 4},
+        }
+    );
+
+    scene.light_sources = light_sources;
+
     return scene;
 }
 
@@ -109,11 +133,11 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
 
 
     for (Object& object: scene.objects) {
-        render_object(renderer, object, view);
+        render_object(renderer, object, view, scene);
     }
 }
 
-void render_object(Renderer& renderer, Object& object, Mat4& view) {
+void render_object(Renderer& renderer, Object& object, Mat4& view, Scene_Rast& scene) {
 
     Mat4 model = translation_matrix(object.position) *
                  rotation_z_matrix(/*object.rotation.z*/ get_runtime_seconds()) *
@@ -162,6 +186,7 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
 
         Triangle3D triangle_to_clip = {p0, p1, p2, t.color};
 
+        // This call also updates the Triangle3D instance's normal attr
         if (is_back_face(triangle_to_clip)) {
             continue;
         }
@@ -169,16 +194,15 @@ void render_object(Renderer& renderer, Object& object, Mat4& view) {
         std::vector<Triangle3D> clipped = clip_triangle(triangle_to_clip, planes);
 
         for (Triangle3D& t: clipped) {
-            render_triangle(renderer, t);
+            render_triangle(renderer, t, scene);
         }
     }
 }
 
 bool is_back_face(Triangle3D& triangle) {
-    Vec3 p0p1 = triangle.p1 - triangle.p0;
-    Vec3 p0p2 = triangle.p2 - triangle.p0;
+    Vec3 normal = get_triangle_normal(triangle);
 
-    Vec3 normal = cross_product(p0p1, p0p2);
+    triangle.normal = normal;
 
     Vec3 view_vector = - triangle.p0;
 
@@ -186,6 +210,14 @@ bool is_back_face(Triangle3D& triangle) {
         return true;
     }
     return false;
+}
+
+Vec3 get_triangle_normal(Triangle3D& triangle) {
+    Vec3 p0p1 = triangle.p1 - triangle.p0;
+    Vec3 p0p2 = triangle.p2 - triangle.p0;
+
+    Vec3 normal = cross_product(p0p1, p0p2);
+    return normal;
 }
 
 std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> planes) {
@@ -317,11 +349,12 @@ Vec3 plane_line_intersection(Vec3 a, Vec3 b, Plane plane) {
     return intersection_point;
 }
 
-void render_triangle(Renderer& renderer, const Triangle3D& triangle) {
+void render_triangle(Renderer& renderer, const Triangle3D& triangle, Scene_Rast& scene) {
     if (object_mode == ObjectMode::FILLED) {
         draw_triangle_filled(
             renderer,
-            triangle
+            triangle,
+            scene
         );
         return;
     }
@@ -411,11 +444,15 @@ void draw_triangle_shaded(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color c
     }
 }
 
-void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle) {
+void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle, Scene_Rast& scene) {
 
     Vec3 t1 = triangle.p0;
     Vec3 t2 = triangle.p1;
     Vec3 t3 = triangle.p2;
+
+    Vec3 center = (t1 + t2 + t3) / 3.0;
+
+    float i = compute_lighting_rast(triangle.normal, center, scene);
 
     Vec2 p1 = project_vertex(renderer, triangle.p0);
     Vec2 p2 = project_vertex(renderer, triangle.p1);
@@ -505,12 +542,50 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle) {
 
         for (int x = std::round(x_left); x <= std::round(x_right); x++) {
             if (one_by_z_value > get_depth_value(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)})) {
-                draw_point(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, triangle.color);
+                draw_point(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, triangle.color * i);
                 update_depth_buffer(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)}, one_by_z_value);
             }
             one_by_z_value += d_one_by_z;
         }
     }
+}
+
+float compute_lighting_rast(Vec3 normal, Vec3 point, Scene_Rast& scene) {
+    float i = 0.0f;
+    for (LightRast& light: scene.light_sources) {
+        if (light.type == LightTypeRast::Ambient) {
+            i += light.intensity;
+        } else {
+            Vec3 l;
+            float max_t;
+            if (light.type == LightTypeRast::Point) {
+                l = light.position - point;
+                max_t = 1.0;
+            } else {
+                l = light.direction;
+                max_t = std::numeric_limits<float>::infinity();
+            }
+
+            // auto [shadow_sphere, shadow_t] = closest_intersection(point, l, 0.001, max_t, scene);
+            // if  (shadow_sphere.radius != 0.0) {
+            //     continue;
+            // }
+
+            float n_dot_l = dot_product(normal, l);
+            if (n_dot_l > 0) {
+                i += light.intensity * n_dot_l / (magnitude(normal) * magnitude(l));
+            }
+
+            // if (specular != 1) {
+            //     Vec3 r = reflect_ray(normal, l);
+            //     float r_dot_v = dot_product(r, view);
+            //     if (r_dot_v > 0) {
+            //         i += light.intensity * std::pow(r_dot_v / (magnitude(r) * magnitude(view)), specular);
+            //     }
+            // }
+        }
+    }
+    return i;
 }
 
 void draw_triangle_wireframe(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color) {
