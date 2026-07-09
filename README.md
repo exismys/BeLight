@@ -19,6 +19,11 @@ SDL2:
 ### Trace Ray recursion_depth = 3
 ![Ray Tracing Result](renders/rendered_ray_traced_scene_rd3.png)
 
+## Rasterized Scenes
+
+### Flat Shaded
+![Rasterization (flat shaded) resutl](renders/rendered_rasterized_cube_flat_shaded.png)
+
 ## Build
 ```
 cmake -B build && \
