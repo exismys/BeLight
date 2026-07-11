@@ -11,6 +11,8 @@
 #include "renderer.hpp"
 #include "types.hpp"
 
+const float PI = 3.14159265359f;
+
 const float viewport_size_x = 1;
 const float viewport_size_y = 1;
 const float viewport_z = 1;
@@ -35,6 +37,57 @@ float get_runtime_seconds() {
     return std::chrono::duration<float>(
         now - start_time
     ).count();
+}
+
+Mesh create_sphere_mesh(int latitudes, int longitudes, float radius) {
+    std::vector<Vec3> vertices;
+    std::vector<Triangle> triangles;
+
+    for (int i = 0; i <= latitudes; i++) {
+        float theta = i * PI / latitudes;
+        float sin_theta = std::sin(theta);
+        float cos_theta = std::cos(theta);
+
+        for (int j = 0; j <= longitudes; j++) {
+            float phi = j * 2.0f * PI / longitudes;
+            float sin_phi = std::sin(phi);
+            float cos_phi = std::cos(phi);
+
+            float x = radius * sin_theta * cos_phi;
+            float y = radius * cos_theta;
+            float z = radius * sin_theta * sin_phi;
+
+            vertices.push_back({x, y, z});
+        }
+    }
+
+    for (int i = 0; i < latitudes; i++) {
+        for (int j = 0; j < longitudes; j++) {
+
+            // Indices for the 4 corners of the current quad
+            int top_left = i * (longitudes + 1) + j;
+            int top_right = top_left + 1;
+            int bottom_left = (i + 1) * (longitudes + 1) + j;
+            int bottom_right = bottom_left + 1;
+
+
+            // Triangles with clockwise winding
+            triangles.push_back({
+                {top_left, top_right, bottom_left},
+                Colors::Yellow 
+            });
+
+            triangles.push_back({
+                {bottom_left, top_right, bottom_right},
+                Colors::Yellow
+            });
+        }
+    }
+    
+    return Mesh {
+        vertices,
+        triangles
+    };
 }
 
 Mesh create_cube_mesh() {
@@ -88,8 +141,18 @@ Scene_Rast create_scene_rast() {
     scene.meshes.push_back(std::make_unique<Mesh>(create_cube_mesh()));
     Mesh* cube_mesh = scene.meshes[0].get();
 
+    scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(10, 10, 1.0f)));
+    Mesh* sphere_mesh = scene.meshes[1].get();
+
+    // scene.objects.push_back({
+    //     cube_mesh,
+    //     Vec3{0.5,0.5, 0.5},
+    //     Vec3{0, 0, 0},
+    //     Vec3{0, 0, 2.5}
+    // });
+
     scene.objects.push_back({
-        cube_mesh,
+        sphere_mesh,
         Vec3{0.5,0.5, 0.5},
         Vec3{0, 0, 0},
         Vec3{0, 0, 2.5}
