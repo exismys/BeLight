@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <iostream>
 #include <cmath>
 #include <stb_image_write.h>
@@ -33,7 +34,36 @@ void draw_circle_solid(Renderer& renderer, Vec2 pos, float radius, Color color) 
 
 // Export framebuffer
 void save_framebuffer(Renderer& renderer, const char* filename) {
-    stbi_write_png(filename, renderer.width, renderer.height, 4, renderer.framebuffer.data(), renderer.width * sizeof(uint32_t));
+    //----------------------------------------------------------------------
+    // renderer.framebuffer has each element of uint32_t type in format:
+    // AA RR GG BB
+
+    // On little endian systems, the value is stored differently in
+    // memory where the least significant byte comes first as in:
+    // BB GG RR AA
+
+    // But stbi_write_png interprets the value in memory as following:
+    // Byte 0 -> RR, Byte 1 -> GG, Byte 2 -> BB, Byte 3 -> AA, i.e.,
+    // RR GG BB AA
+
+    // In order to allign the value, we need the following conversion:
+    // AA RR GG BB -> AA BB GG RR (swap RR and BB channels)
+    //----------------------------------------------------------------------
+    std::vector<uint32_t> temp_buffer = renderer.framebuffer;
+
+    for (size_t i = 0; i < temp_buffer.size(); i++) {
+        uint8_t* pixel_bytes = reinterpret_cast<uint8_t*>(&temp_buffer[i]);
+
+        uint8_t blue = pixel_bytes[0];
+        uint8_t red = pixel_bytes[2];
+
+        // swap RR and BB channels
+        pixel_bytes[0] = red;
+        pixel_bytes[2] = blue;
+    }
+    //----------------------------------------------------------------------
+
+    stbi_write_png(filename, renderer.width, renderer.height, 4, temp_buffer.data(), renderer.width * sizeof(uint32_t));
 }
 
 // put_pixel primitive setup

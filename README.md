@@ -21,8 +21,13 @@ SDL2:
 
 ## Rasterized Scenes
 
-### Flat Shaded
-![Rasterization (flat shaded) resutl](renders/rendered_rasterized_cube_flat_shaded.png)
+### Flat Shaded Cube
+![Rasterization (flat shaded cube) resutl](renders/rendered_rasterized_cube_flat_shaded.png)
+
+### Flat Shaded Sphere
+
+![Rasterization (flat shaded sphere) resutl](renders/rendered_rasterized_sphere_flat_shaded.png)
+
 
 ## Build
 ```
