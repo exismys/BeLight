@@ -3,7 +3,6 @@
 #include <vector>
 #include <cstdint>
 #include "mathematics.hpp"
-#include "simulation.hpp"
 #include "types.hpp"
 
 struct Renderer {
@@ -12,9 +11,6 @@ struct Renderer {
     int width;
     int height;
 };
-
-// Render Simulation objects
-void render_simulation(Renderer& renderer, Simulation& simulation);
 
 // Geometry
 void draw_circle(Renderer& renderer, Vec2 pos, float radius, Color color);

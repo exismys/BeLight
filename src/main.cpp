@@ -76,9 +76,10 @@ int main() {
     };
 
     // Create scenes
-    // Simulation simulation = create_simulation();
+    Simulation simulation = create_simulation();
     Scene scene = create_scene(); // ray traced scene
-    Scene_Rast scene_rast = create_scene_rast(); // rasterized scene
+    // Scene_Rast scene_rast = create_scene_rast(); // rasterized scene
+    Scene_Rast scene_rast = create_scene_rast_from_sim(simulation);
 
     // Load font
     Text text("assets/fonts/UbuntuMono[wght].ttf");
@@ -263,10 +264,20 @@ int main() {
         // Fixed timestep integration
         accumulator += frame_time;
         while (accumulator >= dt) {
-            // update_simulation(simulation, dt);
+            update_simulation(simulation, dt);
             accumulator -= dt;
         }
         //===============================================================
+
+
+        //===============================================================
+        // Physics & Rendering Bridge
+        //===============================================================
+        for (size_t i = 0; i < simulation.bodies.size(); i++) {
+            scene_rast.objects[i].position = simulation.bodies[i].position;
+        }
+        //===============================================================
+
 
         //===============================================================
         // Render scenes by modifying the framebuffer
