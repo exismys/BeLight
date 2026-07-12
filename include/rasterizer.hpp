@@ -9,6 +9,7 @@
 #include "mathematics.hpp"
 #include "renderer.hpp"
 #include "types.hpp"
+#include "simulation.hpp"
 
 enum struct ObjectMode {
     WIREFRAME,
@@ -73,6 +74,7 @@ struct Scene_Rast {
 };
 
 Scene_Rast create_scene_rast();
+Scene_Rast create_scene_rast_from_sim(Simulation& sim);
 
 bool is_back_face(Triangle3D& triangle);
 Vec3 get_triangle_normal(Triangle3D& triangle);

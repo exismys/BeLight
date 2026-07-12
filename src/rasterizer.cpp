@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstddef>
 #include <memory>
 #include <span>
 #include <utility>
@@ -9,6 +10,7 @@
 #include "rasterizer.hpp"
 #include "mathematics.hpp"
 #include "renderer.hpp"
+#include "simulation.hpp"
 #include "types.hpp"
 
 const float PI = 3.14159265359f;
@@ -135,13 +137,57 @@ Mesh create_cube_mesh() {
     };
 };
 
+Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
+    Scene_Rast scene;
+
+    scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
+    Mesh* sphere_mesh = scene.meshes[0].get();
+
+    for (RigidBody& body: sim.bodies) {
+        scene.objects.push_back({
+            sphere_mesh,
+            Vec3{body.radius, body.radius, body.radius},
+            Vec3{0, 0, 0},
+            body.position
+        });
+    }
+
+    scene.object_mode = ObjectMode::FILLED;
+
+    std::vector<LightRast> light_sources;
+    light_sources.push_back(
+        LightRast{
+            .type = LightTypeRast::Ambient,
+            .intensity = 0.2, 
+        }
+    );
+    light_sources.push_back(
+        LightRast{
+            .type = LightTypeRast::Point,
+            .intensity = 0.6, 
+            .position = Vec3{2, 1, 0},
+        }
+    );
+    light_sources.push_back(
+        LightRast{
+            .type = LightTypeRast::Directional,
+            .intensity = 0.2, 
+            .direction = Vec3{1, 4, 4},
+        }
+    );
+
+    scene.light_sources = light_sources;
+
+    return scene;
+}
+
 Scene_Rast create_scene_rast() {
     Scene_Rast scene;
 
     scene.meshes.push_back(std::make_unique<Mesh>(create_cube_mesh()));
     Mesh* cube_mesh = scene.meshes[0].get();
 
-    scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(10, 10, 1.0f)));
+    scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
     Mesh* sphere_mesh = scene.meshes[1].get();
 
     // scene.objects.push_back({
@@ -156,6 +202,13 @@ Scene_Rast create_scene_rast() {
         Vec3{0.5,0.5, 0.5},
         Vec3{0, 0, 0},
         Vec3{0, 0, 2.5}
+    });
+
+    scene.objects.push_back({
+        sphere_mesh,
+        Vec3{0.5,0.5, 0.5},
+        Vec3{0, 0, 0},
+        Vec3{1, 1, 3.5}
     });
 
     scene.object_mode = ObjectMode::FILLED;
@@ -203,9 +256,9 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
 void render_object(Renderer& renderer, Object& object, Mat4& view, Scene_Rast& scene) {
 
     Mat4 model = translation_matrix(object.position) *
-                 rotation_z_matrix(/*object.rotation.z*/ get_runtime_seconds()) *
+                 rotation_z_matrix(object.rotation.z /*get_runtime_seconds()*/) *
                  rotation_y_matrix(object.rotation.y) *
-                 rotation_x_matrix(/*object.rotation.x*/ get_runtime_seconds()) *
+                 rotation_x_matrix(object.rotation.x /*get_runtime_seconds()*/) *
                  scale_matrix(object.scale);
 
     Mat4 view_model = view * model;

@@ -5,13 +5,6 @@
 #include "renderer.hpp"
 #include "mathematics.hpp"
 
-void render_simulation(Renderer& renderer, Simulation& simulation) {
-    for (Particle& particle: simulation.particles) {
-        // std::cout << "x: " << particle.pos.x << ", y: " << particle.pos.y << '\n';
-        draw_circle_solid(renderer, particle.pos, particle.radius, particle.color);
-    }
-}
-
 // Geometry
 void draw_circle_solid(Renderer& renderer, Vec2 pos, float radius, Color color) {
     IVec2 screen_pos = world_to_screen(renderer, pos);
@@ -32,7 +25,9 @@ void draw_circle_solid(Renderer& renderer, Vec2 pos, float radius, Color color) 
     }
 }
 
-// Export framebuffer
+//=============================================================
+// Export frame
+//=============================================================
 void save_framebuffer(Renderer& renderer, const char* filename) {
     //----------------------------------------------------------------------
     // renderer.framebuffer has each element of uint32_t type in format:
@@ -65,8 +60,12 @@ void save_framebuffer(Renderer& renderer, const char* filename) {
 
     stbi_write_png(filename, renderer.width, renderer.height, 4, temp_buffer.data(), renderer.width * sizeof(uint32_t));
 }
+//=============================================================
 
-// put_pixel primitive setup
+
+//=============================================================
+// Put Pixel Primitive
+//=============================================================
 void draw_point(Renderer& renderer, Vec2 world_point, Color color) {
     IVec2 screen_point = world_to_screen(renderer, world_point);
     put_pixel(renderer, screen_point, color);
@@ -96,6 +95,8 @@ void put_pixel(Renderer& renderer, IVec2 screen_point, Color color) {
     );
     renderer.framebuffer[screen_point.y * renderer.width + screen_point.x] = rgba;
 }
+//=============================================================
+
 
 //=============================================================
 // Depth Buffer
