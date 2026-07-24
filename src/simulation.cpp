@@ -8,8 +8,8 @@ Simulation create_simulation() {
     std::vector<RigidBody> bodies;
 
     bodies.push_back(RigidBody{
-        {0.0f, 0.0f, 15.5f},
-        {0.4f, 0.0f, 0.0f},
+        {-2.0f, -2.0f, 30.5f},
+        {0.0f, 0.0f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
         1.0f,
@@ -17,8 +17,17 @@ Simulation create_simulation() {
     });
 
     bodies.push_back(RigidBody{
-        {0.0f, 0.0f, 8.5f},
-        {-0.4f, 0.0f, 0.0f},
+        {2.0f, 2.0f, 30.5f},
+        {-0.6f, 0.5f, 0.0f},
+        {0.0f, 0.0f, 0.0f},
+
+        1.0f,
+        1.0f
+    });
+
+    bodies.push_back(RigidBody{
+        {2.0f, -2.0f, 30.5f},
+        {0.0f, 0.0f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
         1.0f,
@@ -40,7 +49,11 @@ void update_simulation(Simulation& sim, float dt) {
 
 void apply_gravitational_force(Simulation &sim) {
 
-    float G = 12.0f;
+    float G = 20.0f;
+
+    for (size_t i = 0; i < sim.bodies.size(); i++) {
+        sim.bodies[i].acceleration = {0.0f, 0.0f, 0.0f};
+    }
 
     for (size_t i = 0; i < sim.bodies.size(); i++) {
         for (size_t j = i + 1; j < sim.bodies.size(); j++) {
@@ -51,7 +64,7 @@ void apply_gravitational_force(Simulation &sim) {
             Vec3 displacement_v = b2.position - b1.position;
             float distance_sq = dot_product(displacement_v, displacement_v);
 
-            if (distance_sq < 0.0001f) continue;
+            if (distance_sq < 0.1f) continue;
 
             float distance = std::sqrt(distance_sq);
 
@@ -68,7 +81,7 @@ void apply_gravitational_force(Simulation &sim) {
 }
 
 void apply_force(RigidBody& body, Vec3 force) {
-    body.acceleration = force / body.mass;
+    body.acceleration += force / body.mass;
 }
 
 void update_kinematics(RigidBody& body, float dt) {
