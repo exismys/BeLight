@@ -9,7 +9,7 @@ Simulation create_simulation() {
 
     bodies.push_back(RigidBody{
         {-2.0f, -2.0f, 30.5f},
-        {0.0f, 0.0f, 0.0f},
+        {0.6f, -1.0f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
         1.0f,
@@ -18,16 +18,7 @@ Simulation create_simulation() {
 
     bodies.push_back(RigidBody{
         {2.0f, 2.0f, 30.5f},
-        {-0.6f, 0.5f, 0.0f},
-        {0.0f, 0.0f, 0.0f},
-
-        1.0f,
-        1.0f
-    });
-
-    bodies.push_back(RigidBody{
-        {2.0f, -2.0f, 30.5f},
-        {0.0f, 0.0f, 0.0f},
+        {-0.6f, 1.0f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
         1.0f,

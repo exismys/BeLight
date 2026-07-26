@@ -16,7 +16,7 @@
 const float PI = 3.14159265359f;
 
 const float viewport_size_x = 1;
-const float viewport_size_y = 1;
+const float viewport_size_y = 0.5;
 const float viewport_z = 1;
 
 const float one_by_sqrt_two = 1 / std::sqrt(2);
@@ -152,7 +152,7 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
         });
     }
 
-    scene.object_mode = ObjectMode::FILLED;
+    scene.object_mode = ObjectMode::WIREFRAME;
 
     std::vector<LightRast> light_sources;
     light_sources.push_back(
@@ -654,7 +654,12 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle, Scene_
         // Instead, we are calculating z_value manually.
         //----------------------------------------------------------------------
         float one_by_z_value = one_by_z_left;
-        float d_one_by_z = (one_by_z_right - one_by_z_left) / (x_right - x_left);
+        float d_one_by_z;
+        if (x_left == x_right) {
+          continue;  
+        } else {
+            d_one_by_z = (one_by_z_right - one_by_z_left) / (x_right - x_left);
+        }
 
         for (int x = std::round(x_left); x <= std::round(x_right); x++) {
             if (one_by_z_value > get_depth_value(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)})) {
