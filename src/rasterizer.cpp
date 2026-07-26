@@ -625,7 +625,7 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle, Scene_
     std::vector<float> one_by_z_values_p123 = one_by_z_values_p12;
     one_by_z_values_p123.insert(one_by_z_values_p123.end(), one_by_z_values_p23.begin(), one_by_z_values_p23.end());
 
-    int mid = x_values_p12.size() / 2;
+    int mid = x_values_p123.size() / 2;
     std::vector<float> x_values_left, x_values_right, one_by_z_values_left, one_by_z_values_right;
     if (x_values_p13[mid] < x_values_p123[mid]) {
         x_values_left = x_values_p13;
@@ -639,11 +639,15 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle, Scene_
         one_by_z_values_right = one_by_z_values_p13;
     }
 
-    for (int y = std::round(p1.y); y <= std::round(p3.y); y++) {
-        float x_left = x_values_left[y - p1.y];
-        float x_right = x_values_right[y - p1.y];
-        float one_by_z_left = one_by_z_values_left[y - p1.y];
-        float one_by_z_right = one_by_z_values_right[y - p1.y];
+    int start_y = std::round(p1.y);
+    int end_y = std::round(p3.y);
+    for (int y = start_y; y <= end_y; y++) {
+        int y_index = y - start_y;
+
+        float x_left = x_values_left[y_index];
+        float x_right = x_values_right[y_index];
+        float one_by_z_left = one_by_z_values_left[y_index];
+        float one_by_z_right = one_by_z_values_right[y_index];
 
         //----------------------------------------------------------------------
         // We are avoiding using interpolate function here because it's doing
