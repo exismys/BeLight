@@ -16,7 +16,7 @@
 const float PI = 3.14159265359f;
 
 const float viewport_size_x = 1;
-const float viewport_size_y = 1;
+const float viewport_size_y = 0.5;
 const float viewport_z = 1;
 
 const float one_by_sqrt_two = 1 / std::sqrt(2);
@@ -152,7 +152,7 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
         });
     }
 
-    scene.object_mode = ObjectMode::FILLED;
+    scene.object_mode = ObjectMode::WIREFRAME;
 
     std::vector<LightRast> light_sources;
     light_sources.push_back(
@@ -625,7 +625,7 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle, Scene_
     std::vector<float> one_by_z_values_p123 = one_by_z_values_p12;
     one_by_z_values_p123.insert(one_by_z_values_p123.end(), one_by_z_values_p23.begin(), one_by_z_values_p23.end());
 
-    int mid = x_values_p12.size() / 2;
+    int mid = x_values_p123.size() / 2;
     std::vector<float> x_values_left, x_values_right, one_by_z_values_left, one_by_z_values_right;
     if (x_values_p13[mid] < x_values_p123[mid]) {
         x_values_left = x_values_p13;
@@ -639,11 +639,15 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle, Scene_
         one_by_z_values_right = one_by_z_values_p13;
     }
 
-    for (int y = std::round(p1.y); y <= std::round(p3.y); y++) {
-        float x_left = x_values_left[y - p1.y];
-        float x_right = x_values_right[y - p1.y];
-        float one_by_z_left = one_by_z_values_left[y - p1.y];
-        float one_by_z_right = one_by_z_values_right[y - p1.y];
+    int start_y = std::round(p1.y);
+    int end_y = std::round(p3.y);
+    for (int y = start_y; y <= end_y; y++) {
+        int y_index = y - start_y;
+
+        float x_left = x_values_left[y_index];
+        float x_right = x_values_right[y_index];
+        float one_by_z_left = one_by_z_values_left[y_index];
+        float one_by_z_right = one_by_z_values_right[y_index];
 
         //----------------------------------------------------------------------
         // We are avoiding using interpolate function here because it's doing
@@ -654,7 +658,12 @@ void draw_triangle_filled(Renderer& renderer, const Triangle3D& triangle, Scene_
         // Instead, we are calculating z_value manually.
         //----------------------------------------------------------------------
         float one_by_z_value = one_by_z_left;
-        float d_one_by_z = (one_by_z_right - one_by_z_left) / (x_right - x_left);
+        float d_one_by_z;
+        if (x_left == x_right) {
+          continue;  
+        } else {
+            d_one_by_z = (one_by_z_right - one_by_z_left) / (x_right - x_left);
+        }
 
         for (int x = std::round(x_left); x <= std::round(x_right); x++) {
             if (one_by_z_value > get_depth_value(renderer, Vec2{static_cast<float>(x), static_cast<float>(y)})) {
