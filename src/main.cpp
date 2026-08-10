@@ -282,7 +282,7 @@ int main() {
         //===============================================================
         // Render scenes by modifying the framebuffer
         //===============================================================
-        std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF202020); // Clear framebuffer
+        std::fill(renderer.framebuffer.begin(), renderer.framebuffer.end(), 0xFF050814); // Clear framebuffer
         std::fill(renderer.depth_buffer.begin(), renderer.depth_buffer.end(), 0.0f); // Clear depth buffer 
 
         // Render scenes

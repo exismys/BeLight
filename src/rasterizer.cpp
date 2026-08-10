@@ -158,21 +158,21 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     light_sources.push_back(
         LightRast{
             .type = LightTypeRast::Ambient,
-            .intensity = 0.2, 
+            .intensity = 0.07, 
         }
     );
     light_sources.push_back(
         LightRast{
             .type = LightTypeRast::Point,
             .intensity = 0.6, 
-            .position = Vec3{2, 1, 0},
+            .position = Vec3{50, 1, 15},
         }
     );
     light_sources.push_back(
         LightRast{
             .type = LightTypeRast::Directional,
-            .intensity = 0.2, 
-            .direction = Vec3{1, 4, 4},
+            .intensity = 0.33, 
+            .direction = Vec3{0, -1, 1},
         }
     );
 
@@ -687,7 +687,7 @@ float compute_lighting_rast(Vec3 normal, Vec3 point, Scene_Rast& scene) {
                 l = light.position - point;
                 max_t = 1.0;
             } else {
-                l = light.direction;
+                l = -light.direction;
                 max_t = std::numeric_limits<float>::infinity();
             }
 

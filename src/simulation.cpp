@@ -12,8 +12,8 @@ Simulation create_simulation() {
         {0.6f, -1.0f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
-        1.0f,
-        1.0f
+        50.0f,
+        0.5f
     });
 
     bodies.push_back(RigidBody{
@@ -21,8 +21,8 @@ Simulation create_simulation() {
         {-0.6f, 1.0f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
-        1.0f,
-        1.0f
+        50.0f,
+        0.5f
     });
 
     return Simulation {
@@ -40,7 +40,7 @@ void update_simulation(Simulation& sim, float dt) {
 
 void apply_gravitational_force(Simulation &sim) {
 
-    float G = 20.0f;
+    float G = 1.0f;
 
     for (size_t i = 0; i < sim.bodies.size(); i++) {
         sim.bodies[i].acceleration = {0.0f, 0.0f, 0.0f};
