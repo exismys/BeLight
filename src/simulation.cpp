@@ -9,7 +9,16 @@ Simulation create_simulation() {
 
     bodies.push_back(RigidBody{
         {-2.0f, -2.0f, 30.5f},
-        {0.6f, -1.0f, 0.0f},
+        {0.6f, -1.1f, 0.0f},
+        {0.0f, 0.0f, 0.0f},
+
+        50.0f,
+        0.5f,
+    });
+
+    bodies.push_back(RigidBody{
+        {2.0f, 2.0f, 30.5f},
+        {-0.6f, 1.1f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
@@ -17,13 +26,17 @@ Simulation create_simulation() {
     });
 
     bodies.push_back(RigidBody{
-        {2.0f, 2.0f, 30.5f},
-        {-0.6f, 1.0f, 0.0f},
+        {10.0f, 6.0f, 30.5f},
+        {0.6f, -1.1f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
         0.5f
     });
+
+    for (RigidBody& body: bodies) {
+        body.trail.push_back(body.position);
+    }
 
     return Simulation {
         bodies
@@ -32,7 +45,7 @@ Simulation create_simulation() {
 
 void update_simulation(Simulation& sim, float dt) {
     apply_gravitational_force(sim);
-    
+
     for (RigidBody& body: sim.bodies) {
         update_kinematics(body, dt);
     }
@@ -78,4 +91,12 @@ void apply_force(RigidBody& body, Vec3 force) {
 void update_kinematics(RigidBody& body, float dt) {
     body.velocity += body.acceleration * dt;
     body.position += body.velocity * dt;
+    update_motion_trail(body);
+}
+
+void update_motion_trail(RigidBody& body) {
+    if (body.trail.size() >= 1000) {
+        body.trail.pop_front();
+    }
+    body.trail.push_back(body.position);
 }

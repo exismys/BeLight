@@ -3,7 +3,6 @@
 #include <format>
 #include <iostream>
 #include <cstdint>
-#include <limits>
 #include <vector>
 #include <chrono>
 
@@ -289,6 +288,7 @@ int main() {
         // render_simulation(renderer, simulation);
         // render_ray_traced_scene(renderer, scene);
         render_scene_rast(renderer, scene_rast);
+        render_trails(renderer, simulation);
 
         // Render text info
         text.draw_text(renderer, std::format("FPS: {:.2f}", average_fps), IVec2{10, 40}, 24.0f, Color{255, 255, 255, 255});

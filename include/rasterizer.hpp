@@ -97,6 +97,8 @@ void render_triangle(Renderer& renderer, const Triangle3D& triangle, Scene_Rast&
 
 std::vector<float> interpolate(Vec2 p1, Vec2 p2);
 
+void render_trails(Renderer& renderer, Simulation& sim);
+void draw_line_3d(Renderer& renderer, Vec3 p1, Vec3 p2, Color color);
 void draw_line(Renderer& renderer, Vec2 p1, Vec2 p2, Color color);
 
 void draw_triangle_wireframe(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color);

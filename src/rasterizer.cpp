@@ -735,6 +735,20 @@ std::vector<float> interpolate(Vec2 p1, Vec2 p2) {
     return values;
 }
 
+void render_trails(Renderer& renderer, Simulation &sim) {
+    for (RigidBody& body: sim.bodies) {
+        for (size_t i = 1; i < body.trail.size(); i++) {
+            draw_line_3d(renderer, body.trail[i-1], body.trail[i], Colors::Orange);
+        }
+    }
+}
+
+void draw_line_3d(Renderer& renderer, Vec3 p1, Vec3 p2, Color color) {
+    Vec2 pp1 = project_vertex(renderer, p1);
+    Vec2 pp2 = project_vertex(renderer, p2);
+    draw_line(renderer, pp1, pp2, color);
+}
+
 void draw_line(Renderer& renderer, Vec2 p1, Vec2 p2, Color color) {
     if (std::abs(p2.x - p1.x) > std::abs(p2.y - p1.y)) {
         if (p1.x > p2.x) {
