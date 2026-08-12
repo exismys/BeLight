@@ -148,7 +148,9 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
             sphere_mesh,
             Vec3{body.radius, body.radius, body.radius},
             Vec3{0, 0, 0},
-            body.position
+            body.position,
+
+            body.color
         });
     }
 
@@ -300,7 +302,7 @@ void render_object(Renderer& renderer, Object& object, Mat4& view, Scene_Rast& s
         };
         //----------------------------------------------------------------------
 
-        Triangle3D triangle_to_clip = {p0, p1, p2, t.color};
+        Triangle3D triangle_to_clip = {p0, p1, p2, object.color};
 
         // This call also updates the Triangle3D instance's normal attr
         if (is_back_face(triangle_to_clip)) {

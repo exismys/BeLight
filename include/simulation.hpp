@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "mathematics.hpp"
+#include "types.hpp"
 
 struct RigidBody {
     Vec3 position;
@@ -12,6 +13,8 @@ struct RigidBody {
 
     float mass;
     float radius;
+
+    Color color;
 
     std::deque<Vec3> trail;
 };

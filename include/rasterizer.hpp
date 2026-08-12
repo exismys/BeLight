@@ -50,6 +50,8 @@ struct Object {
     Vec3 scale = {1, 1, 1};
     Vec3 rotation;
     Vec3 position;
+
+    Color color;
 };
 
 enum class LightTypeRast {

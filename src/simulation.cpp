@@ -1,5 +1,6 @@
 #include "simulation.hpp"
 #include "mathematics.hpp"
+#include "types.hpp"
 #include <cmath>
 #include <unistd.h>
 
@@ -14,6 +15,8 @@ Simulation create_simulation() {
 
         50.0f,
         0.5f,
+
+        Colors::Yellow
     });
 
     bodies.push_back(RigidBody{
@@ -22,7 +25,9 @@ Simulation create_simulation() {
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
-        0.5f
+        0.5f,
+
+        Colors::Cyan
     });
 
     bodies.push_back(RigidBody{
@@ -31,7 +36,9 @@ Simulation create_simulation() {
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
-        0.5f
+        0.5f,
+
+        Colors::LightGray
     });
 
     for (RigidBody& body: bodies) {
