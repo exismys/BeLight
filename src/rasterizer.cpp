@@ -740,7 +740,7 @@ std::vector<float> interpolate(Vec2 p1, Vec2 p2) {
 void render_trails(Renderer& renderer, Simulation &sim) {
     for (RigidBody& body: sim.bodies) {
         for (size_t i = 1; i < body.trail.size(); i++) {
-            draw_line_3d(renderer, body.trail[i-1], body.trail[i], Colors::Orange);
+            draw_line_3d(renderer, body.trail[i-1], body.trail[i], body.color);
         }
     }
 }
