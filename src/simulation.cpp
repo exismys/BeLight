@@ -10,7 +10,7 @@ Simulation create_simulation() {
 
     bodies.push_back(RigidBody{
         {-2.0f, -2.0f, 30.5f},
-        {0.6f, -1.1f, 0.0f},
+        {0.6f, -1.1f, 3.1f},
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
@@ -21,7 +21,7 @@ Simulation create_simulation() {
 
     bodies.push_back(RigidBody{
         {2.0f, 2.0f, 30.5f},
-        {-0.6f, 1.1f, 0.0f},
+        {-0.6f, 1.1f, -1.0f},
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
@@ -32,7 +32,7 @@ Simulation create_simulation() {
 
     bodies.push_back(RigidBody{
         {10.0f, 6.0f, 30.5f},
-        {0.6f, -1.1f, 0.0f},
+        {0.6f, -1.1f, 3.1f},
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
@@ -40,6 +40,18 @@ Simulation create_simulation() {
 
         Colors::LightGray
     });
+
+    // bodies.push_back(RigidBody{
+    //     {-3.0f, -3.0f, 30.5f},
+    //     {0.6f, -2.5f, -2.5f},
+    //     {0.0f, 0.0f, 0.0f},
+
+    //     0.25f,
+    //     0.25f,
+
+    //     Colors::LightGray
+    // });
+
 
     for (RigidBody& body: bodies) {
         body.trail.push_back(body.position);
@@ -102,7 +114,7 @@ void update_kinematics(RigidBody& body, float dt) {
 }
 
 void update_motion_trail(RigidBody& body) {
-    if (body.trail.size() >= 1000) {
+    if (body.trail.size() >= 400) {
         body.trail.pop_front();
     }
     body.trail.push_back(body.position);
