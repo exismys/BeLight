@@ -46,12 +46,12 @@ Mesh create_sphere_mesh(int latitudes, int longitudes, float radius) {
     std::vector<Triangle> triangles;
 
     for (int i = 0; i <= latitudes; i++) {
-        float theta = i * PI / latitudes;
+        float theta = i * (PI / latitudes);
         float sin_theta = std::sin(theta);
         float cos_theta = std::cos(theta);
 
         for (int j = 0; j <= longitudes; j++) {
-            float phi = j * 2.0f * PI / longitudes;
+            float phi = j * (2.0f * PI / longitudes);
             float sin_phi = std::sin(phi);
             float cos_phi = std::cos(phi);
 
@@ -723,14 +723,20 @@ void draw_triangle_wireframe(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Colo
 
 std::vector<float> interpolate(Vec2 p1, Vec2 p2) {
     std::vector<float> values;
-    if (std::round(p1.x) == std::round(p2.x)) {
+
+    int start_i = std::round(p1.x);
+    int end_i = std::round(p2.x);
+
+
+    if (start_i == end_i) {
         values.push_back(p1.y);
         return values;
     } 
 
+    float slope = (p2.y - p1.y) / static_cast<float>(end_i - start_i);
+
     float y = p1.y;
-    float slope = (p2.y - p1.y) / (p2.x - p1.x);
-    for (int i = std::round(p1.x); i <= std::round(p2.x); i++) {
+    for (int i = start_i; i <= end_i; i++) {
         values.push_back(y);
         y = y + slope;
     }
