@@ -150,6 +150,7 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
             Vec3{0, 0, 0},
             body.position,
 
+            nullptr,
             body.color
         });
     }
@@ -249,8 +250,9 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
                 rotation_z_matrix(-scene.camera.rotation.z) *
                 translation_matrix(-scene.camera.position);
 
-
+    
     for (Object& object: scene.objects) {
+        render_trail(renderer, object.trail, object.color, view);
         render_object(renderer, object, view, scene);
     }
 }
@@ -743,11 +745,21 @@ std::vector<float> interpolate(Vec2 p1, Vec2 p2) {
     return values;
 }
 
-void render_trails(Renderer& renderer, Simulation &sim) {
-    for (RigidBody& body: sim.bodies) {
-        for (size_t i = 1; i < body.trail.size(); i++) {
-            draw_line_3d(renderer, body.trail[i-1], body.trail[i], body.color);
-        }
+void render_trail(Renderer& renderer, const std::deque<Vec3>* trail, Color color, Mat4& view) {
+    for (size_t i = 1; i < trail->size(); i++) {
+
+        Vec3 p1 = (*trail)[i-1];
+        Vec3 p2 = (*trail)[i];
+
+        Vec4 transformed_p1 = view * Vec4{p1.x, p1.y, p1.z, 1};
+        Vec4 transformed_p2 = view * Vec4{p2.x, p2.y, p2.z, 1};
+
+        draw_line_3d(
+            renderer, 
+            Vec3{transformed_p1.x, transformed_p1.y, transformed_p1.z}, 
+            Vec3{transformed_p2.x, transformed_p2.y, transformed_p2.z}, 
+            color
+        );
     }
 }
 

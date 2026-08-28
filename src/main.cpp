@@ -273,6 +273,7 @@ int main() {
         //===============================================================
         for (size_t i = 0; i < simulation.bodies.size(); i++) {
             scene_rast.objects[i].position = simulation.bodies[i].position;
+            scene_rast.objects[i].trail = &simulation.bodies[i].trail;
         }
         //===============================================================
 
@@ -286,7 +287,7 @@ int main() {
         // Render scenes
         // render_simulation(renderer, simulation);
         // render_ray_traced_scene(renderer, scene);
-        render_trails(renderer, simulation);
+        // render_trails(renderer, simulation);
         render_scene_rast(renderer, scene_rast);
 
         // Render text info
