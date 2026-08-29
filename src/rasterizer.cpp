@@ -73,6 +73,29 @@ Mesh create_cylinder_mesh(int steps, float radius, float height) {
         });
     }
 
+    vertices.push_back({0, height / 2.0f, 0});
+    vertices.push_back({0, -height / 2.0f, 0});
+
+    for (int i = 0; i < vertices.size() - 5; i += 2) {
+        int top_center = vertices.size() - 2;
+        int v_1 = i;
+        int v_2 = i + 2;
+
+        triangles.push_back({
+            {v_1, top_center, v_2},
+            Colors::Yellow
+        });
+
+        int bottom_center = vertices.size() - 1;
+        v_1 = i + 1;
+        v_2 = i + 3;
+
+        triangles.push_back({
+            {v_2, bottom_center, v_1},
+            Colors::Yellow
+        });
+    }
+
     return Mesh {
         vertices,
         triangles
@@ -179,7 +202,7 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     Scene_Rast scene;
 
     scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 1.0f)));
+    scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 10.0f)));
     Mesh* sphere_mesh = scene.meshes[1].get();
 
     // for (RigidBody& body: sim.bodies) {
@@ -195,7 +218,7 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     // }
         scene.objects.push_back({
             sphere_mesh,
-            Vec3{1.0f, 1.0f, 1.0f},
+            Vec3{0.2f, 0.2f, 0.2f},
             Vec3{0, 0, 0},
             {0, 0, 10},
 
