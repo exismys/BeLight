@@ -41,6 +41,44 @@ float get_runtime_seconds() {
     ).count();
 }
 
+Mesh create_cylinder_mesh(int steps, float radius, float height) {
+    std::vector<Vec3> vertices;
+    std::vector<Triangle> triangles;
+
+    for (int i = 0; i <= steps; i++) {
+        float theta = i * (2.0f * PI / steps);
+        float x = radius * std::cos(theta);
+        float y = height / 2.0;
+        float y2 = - height / 2.0;
+        float z = radius * std::sin(theta);
+
+        vertices.push_back({x, y, z});
+        vertices.push_back({x, y2, z});
+    }
+
+    for (int i = 0; i < vertices.size() - 3; i += 2) {
+        int top_left = i;
+        int top_right = i + 2;
+        int bottom_left = i + 1;
+        int bottom_right = i + 3;
+
+        triangles.push_back({
+            {top_left, top_right, bottom_left},
+            Colors::Yellow
+        });
+
+        triangles.push_back({
+            {bottom_left, top_right, bottom_right},
+            Colors::Yellow
+        });
+    }
+
+    return Mesh {
+        vertices,
+        triangles
+    };
+}
+
 Mesh create_sphere_mesh(int latitudes, int longitudes, float radius) {
     std::vector<Vec3> vertices;
     std::vector<Triangle> triangles;
@@ -141,19 +179,29 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     Scene_Rast scene;
 
     scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
-    Mesh* sphere_mesh = scene.meshes[0].get();
+    scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 1.0f)));
+    Mesh* sphere_mesh = scene.meshes[1].get();
 
-    for (RigidBody& body: sim.bodies) {
+    // for (RigidBody& body: sim.bodies) {
+    //     scene.objects.push_back({
+    //         sphere_mesh,
+    //         Vec3{body.radius, body.radius, body.radius},
+    //         Vec3{0, 0, 0},
+    //         body.position,
+
+    //         nullptr,
+    //         body.color
+    //     });
+    // }
         scene.objects.push_back({
             sphere_mesh,
-            Vec3{body.radius, body.radius, body.radius},
+            Vec3{1.0f, 1.0f, 1.0f},
             Vec3{0, 0, 0},
-            body.position,
+            {0, 0, 10},
 
             nullptr,
-            body.color
+            Colors::Yellow
         });
-    }
 
     scene.object_mode = ObjectMode::WIREFRAME;
 
@@ -252,7 +300,7 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
 
     
     for (Object& object: scene.objects) {
-        render_trail(renderer, object.trail, object.color, view);
+        // render_trail(renderer, object.trail, object.color, view);
         render_object(renderer, object, view, scene);
     }
 }
@@ -262,7 +310,7 @@ void render_object(Renderer& renderer, Object& object, Mat4& view, Scene_Rast& s
     Mat4 model = translation_matrix(object.position) *
                  rotation_z_matrix(object.rotation.z /*get_runtime_seconds()*/) *
                  rotation_y_matrix(object.rotation.y) *
-                 rotation_x_matrix(object.rotation.x /*get_runtime_seconds()*/) *
+                 rotation_x_matrix(/*object.rotation.x*/ get_runtime_seconds()) *
                  scale_matrix(object.scale);
 
     Mat4 view_model = view * model;

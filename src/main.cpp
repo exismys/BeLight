@@ -205,6 +205,9 @@ int main() {
         ImGui::NewFrame();
 
         if (ImGui::Begin("BeLight Controls")) {
+
+            ImGui::Text("FPS: %.2f", average_fps);
+
             if (ImGui::Button("Save Frame")) {
                 export_frame = true;
             }
@@ -214,8 +217,6 @@ int main() {
             if (next_mouse_look != mouse_look_active) {
                 set_mouse_look(next_mouse_look);
             }
-
-            ImGui::Text("FPS: %.2f", average_fps);
         }
         ImGui::End();
 
@@ -324,10 +325,10 @@ int main() {
         //===============================================================
         // Physics & Rendering Bridge
         //===============================================================
-        for (size_t i = 0; i < simulation.bodies.size(); i++) {
-            scene_rast.objects[i].position = simulation.bodies[i].position;
-            scene_rast.objects[i].trail = &simulation.bodies[i].trail;
-        }
+        // for (size_t i = 0; i < simulation.bodies.size(); i++) {
+        //     scene_rast.objects[i].position = simulation.bodies[i].position;
+        //     scene_rast.objects[i].trail = &simulation.bodies[i].trail;
+        // }
         //===============================================================
 
 
