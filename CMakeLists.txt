@@ -18,7 +18,12 @@ FetchContent_Declare(stb_image
   SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/stb-src
 )
 
-FetchContent_MakeAvailable(stb_image)
+FetchContent_Declare(imgui
+  URL https://github.com/ocornut/imgui/archive/refs/tags/v1.91.9.tar.gz
+  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/imgui-src
+)
+
+FetchContent_MakeAvailable(stb_image imgui)
 
 add_executable(
     BeLight
@@ -29,6 +34,12 @@ add_executable(
     src/stb_impl.cpp
     src/text.cpp
     src/rasterizer.cpp
+    ${imgui_SOURCE_DIR}/imgui.cpp
+    ${imgui_SOURCE_DIR}/imgui_draw.cpp
+    ${imgui_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.cpp
 )
 
 # Link the required system libraries to the executable
@@ -40,4 +51,6 @@ target_link_libraries(BeLight PRIVATE
 target_include_directories(BeLight PRIVATE
     include
     ${CMAKE_BINARY_DIR}/_deps/stb-src
+    ${imgui_SOURCE_DIR}
+    ${imgui_SOURCE_DIR}/backends
 )

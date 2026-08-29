@@ -11,6 +11,10 @@
 #include <SDL2/SDL.h>
 #include <SDL_keycode.h>
 
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_sdlrenderer2.h>
+
 #include "renderer.hpp"
 #include "mathematics.hpp"
 #include "simulation.hpp"
@@ -80,7 +84,15 @@ int main() {
     Scene_Rast scene_rast = create_scene_rast_from_sim(simulation);
 
     // Load font
-    Text text("assets/fonts/UbuntuMono[wght].ttf");
+    // Text text("assets/fonts/UbuntuMono[wght].ttf");
+
+    // Init UI
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr;
+    ImGui::StyleColorsDark();
+    ImGui_ImplSDL2_InitForSDLRenderer(window, sdl_renderer);
+    ImGui_ImplSDLRenderer2_Init(sdl_renderer);
 
     // Frame-time related vars
     auto start_time = std::chrono::steady_clock::now();
@@ -93,8 +105,21 @@ int main() {
     // Game-loop related vars
     bool running = true;
     bool export_frame = false;
+    bool mouse_look_active = false;
+    bool relative_mouse_just_enabled = false;
 
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    // Switch between normal and relative mouse mode
+    const auto set_mouse_look = [&](bool enabled) {
+        mouse_look_active = enabled;
+        relative_mouse_just_enabled = enabled;
+        SDL_SetRelativeMouseMode(enabled ? SDL_TRUE : SDL_FALSE);
+        SDL_ShowCursor(enabled ? SDL_DISABLE : SDL_ENABLE);
+    };
+
+    // Show the OS cursor by default so UI elements are clickable
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+    SDL_ShowCursor(SDL_ENABLE);
+
     SDL_Event event;
 
     while (running) {
@@ -103,6 +128,8 @@ int main() {
         // Handle Events
         //===============================================================
         while (SDL_PollEvent(&event)) {
+            ImGui_ImplSDL2_ProcessEvent(&event);
+
             if (event.type == SDL_QUIT) {
                 running = false;
             }
@@ -158,57 +185,83 @@ int main() {
                 if (event.key.keysym.sym == SDLK_e) {
                     export_frame = true;
                 }
+                if (event.key.keysym.sym == SDLK_TAB && !ImGui::GetIO().WantCaptureKeyboard) {
+                    set_mouse_look(!mouse_look_active);
+                }
             }
 
             // Mouse wheel event
             if (event.type == SDL_MOUSEWHEEL) {
                 update_projection_plane_z(event.wheel.y * 0.1f);
             }
-
-            // Mouse button event
-            // if (event.type == SDL_MOUSEBUTTONDOWN) {
-            //     if (event.button.button == SDL_BUTTON_LEFT) {
-            //     } else if (event.button.button == SDL_BUTTON_RIGHT) {
-            //     }
-            // }
-
-            // Mouse-Motion event
-            if (event.type == SDL_MOUSEMOTION) {
-
-                const float sensitivity = 0.002f;
-
-                //-------------------------------------------------------------------
-                // event.motion.xrel = +ve when the mouse moves right.
-
-                // Coordinate system convention: +ve yaw = anti-clockwise rotation
-                // about y-axis (camera turns left).
-
-                // We need camera to turn right for +ve yaw.
-                // So, we make the event.motion.xrel -ve.
-                //-------------------------------------------------------------------
-                scene_rast.camera.rotation.y += -event.motion.xrel * sensitivity;
-                //-------------------------------------------------------------------
-
-                //-------------------------------------------------------------------
-                // event.motion.xrel = +ve when the mouse moves down.
-
-                // Coordinate system convention: +ve pitch = anti-clockwise rotation
-                // about x-axis (camera turns down).
-
-                // We need this behavior to remain same.
-                //-------------------------------------------------------------------
-                scene_rast.camera.rotation.x += event.motion.yrel * sensitivity;
-                //-------------------------------------------------------------------
-
-                scene_rast.camera.rotation.x = std::clamp(
-                    scene_rast.camera.rotation.x,
-                    -1.5f,
-                    1.5f
-                );
-            }
         }
         //===============================================================
 
+        //===============================================================
+        // Handle UI events/inputs
+        //===============================================================
+        ImGui_ImplSDL2_NewFrame();
+        ImGui_ImplSDLRenderer2_NewFrame();
+        ImGui::NewFrame();
+
+        if (ImGui::Begin("BeLight Controls")) {
+            if (ImGui::Button("Save Frame")) {
+                export_frame = true;
+            }
+
+            bool next_mouse_look = mouse_look_active;
+            ImGui::Checkbox("Mouse look", &next_mouse_look);
+            if (next_mouse_look != mouse_look_active) {
+                set_mouse_look(next_mouse_look);
+            }
+
+            ImGui::Text("FPS: %.2f", average_fps);
+        }
+        ImGui::End();
+
+        if (mouse_look_active && !io.WantCaptureMouse) {
+            int rel_x = 0;
+            int rel_y = 0;
+            SDL_GetRelativeMouseState(&rel_x, &rel_y);
+
+            if (relative_mouse_just_enabled) {
+                rel_x = 0;
+                rel_y = 0;
+                relative_mouse_just_enabled = false;
+            }
+
+            const float sensitivity = 0.002f;
+
+            //-------------------------------------------------------------------
+            // event.motion.xrel = +ve when the mouse moves right.
+
+            // Coordinate system convention: +ve yaw = anti-clockwise rotation
+            // about y-axis (camera turns left).
+
+            // We need camera to turn right for +ve yaw.
+            // So, we make the event.motion.xrel -ve.
+            //-------------------------------------------------------------------
+            scene_rast.camera.rotation.y += -rel_x * sensitivity;
+            //-------------------------------------------------------------------
+
+            //-------------------------------------------------------------------
+            // event.motion.xrel = +ve when the mouse moves down.
+
+            // Coordinate system convention: +ve pitch = anti-clockwise rotation
+            // about x-axis (camera turns down).
+
+            // We need this behavior to remain same.
+            //-------------------------------------------------------------------
+            scene_rast.camera.rotation.x += rel_y * sensitivity;
+            //-------------------------------------------------------------------
+
+            scene_rast.camera.rotation.x = std::clamp(
+                scene_rast.camera.rotation.x,
+                -1.5f,
+                1.5f
+            );
+        }
+        //===============================================================
 
         //===============================================================
         // Camera movement
@@ -291,7 +344,7 @@ int main() {
         render_scene_rast(renderer, scene_rast);
 
         // Render text info
-        text.draw_text(renderer, std::format("FPS: {:.2f}", average_fps), IVec2{10, 40}, 24.0f, Color{255, 255, 255, 255});
+        // text.draw_text(renderer, std::format("FPS: {:.2f}", average_fps), IVec2{10, 40}, 24.0f, Color{255, 255, 255, 255});
 
         // Export current frame to a png image
         if (export_frame) {
@@ -307,6 +360,8 @@ int main() {
         );
 
         SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
+        ImGui::Render();
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), sdl_renderer);
         SDL_RenderPresent(sdl_renderer);
         //===============================================================
     }
@@ -314,6 +369,10 @@ int main() {
     //===============================================================
     // Clean SDL
     //===============================================================
+    ImGui_ImplSDLRenderer2_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(window);
