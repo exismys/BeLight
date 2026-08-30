@@ -94,6 +94,7 @@ float signed_distance(Vec3 vertex, Plane& plane);
 
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene);
 Mesh create_cube_mesh();
+Mesh create_plane_mesh(int grid_row, int grid_column, float grid_size = 0.5);
 Mesh create_cylinder_mesh(int steps, float radius = 1.0f, float height = 1.0f, Vec3 offset = {0, 0, 0}); 
 Mesh create_cone_mesh(int steps, float radius, float height, Vec3 offset = {0, 0, 0}); 
 Mesh create_sphere_mesh(int latitudes, int longitudes, float radius = 1.0f);
