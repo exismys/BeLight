@@ -41,7 +41,13 @@ float get_runtime_seconds() {
     ).count();
 }
 
-Mesh create_cone_mesh(int steps, float radius, float height) {
+// Mesh create_arrow_mesh() {
+//     Mesh cylinder_mesh = create_cylinder_mesh(25, 1.0, 1.0f);
+//     Mesh cone_mesh = create_cone_mesh(25, 1.0, 1.0f);
+
+// }
+
+Mesh create_cone_mesh(int steps, float radius, float height, Vec3 offset) {
     std::vector<Vec3> vertices;
     std::vector<Triangle> triangles;
 
@@ -56,6 +62,10 @@ Mesh create_cone_mesh(int steps, float radius, float height) {
 
     vertices.push_back({0, height, 0});
     vertices.push_back({0, 0, 0});
+
+    for (int i = 0; i < vertices.size(); i++) {
+        vertices[i] += offset;
+    }
 
     for (int i = 0; i < vertices.size() - 3; i++) {
         int v_1 = i;
@@ -80,7 +90,7 @@ Mesh create_cone_mesh(int steps, float radius, float height) {
     };
 }
 
-Mesh create_cylinder_mesh(int steps, float radius, float height) {
+Mesh create_cylinder_mesh(int steps, float radius, float height, Vec3 offset) {
     std::vector<Vec3> vertices;
     std::vector<Triangle> triangles;
 
@@ -241,9 +251,11 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     Scene_Rast scene;
 
     scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 10.0f)));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_cone_mesh(25, 1.0, 5.0f)));
-    Mesh* sphere_mesh = scene.meshes[2].get();
+    scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 1.0f, {0, 0, 0})));
+    scene.meshes.push_back(std::make_unique<Mesh>(create_cone_mesh(25, 1.0, 0.2f, {0, 0.5, 0})));
+    Mesh* sphere_mesh = scene.meshes[0].get();
+    Mesh* cylinder_mesh = scene.meshes[1].get();
+    Mesh* cone_mesh = scene.meshes[2].get();
 
     // for (RigidBody& body: sim.bodies) {
     //     scene.objects.push_back({
@@ -256,15 +268,26 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     //         body.color
     //     });
     // }
-        scene.objects.push_back({
-            sphere_mesh,
-            Vec3{0.2f, 0.2f, 0.2f},
-            Vec3{0, 0, 0},
-            {0, 0, 10},
 
-            nullptr,
-            Colors::Yellow
-        });
+    scene.objects.push_back({
+        cylinder_mesh,
+        Vec3{0.02f, 1.0f, 0.02f},
+        Vec3{0, 0, 0},
+        {0, 0, 10},
+
+        nullptr,
+        Colors::Yellow
+    });
+
+    scene.objects.push_back({
+        cone_mesh,
+        Vec3{0.03f, 1.0f, 0.03f},
+        Vec3{0, 0, 0},
+        {0, 0, 10},
+
+        nullptr,
+        Colors::Yellow
+    });
 
     scene.object_mode = ObjectMode::WIREFRAME;
 
