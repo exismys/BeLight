@@ -95,6 +95,7 @@ float signed_distance(Vec3 vertex, Plane& plane);
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene);
 Mesh create_cube_mesh();
 Mesh create_cylinder_mesh(int steps, float radius = 1.0f, float height = 1.0f); 
+Mesh create_cone_mesh(int steps, float radius, float height); 
 Mesh create_sphere_mesh(int latitudes, int longitudes, float radius = 1.0f);
 void render_object(Renderer& renderer, Object& object, Mat4& view, Scene_Rast& scene);
 void render_triangle(Renderer& renderer, const Triangle3D& triangle, Scene_Rast& scene);

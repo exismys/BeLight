@@ -41,6 +41,45 @@ float get_runtime_seconds() {
     ).count();
 }
 
+Mesh create_cone_mesh(int steps, float radius, float height) {
+    std::vector<Vec3> vertices;
+    std::vector<Triangle> triangles;
+
+    for (int i = 0; i <= steps; i++) {
+        float theta = i * (2.0f * PI / steps);
+        float x = radius * std::cos(theta);
+        float y = 0;
+        float z = radius * std::sin(theta);
+
+        vertices.push_back({x, y, z});
+    }
+
+    vertices.push_back({0, height, 0});
+    vertices.push_back({0, 0, 0});
+
+    for (int i = 0; i < vertices.size() - 3; i++) {
+        int v_1 = i;
+        int top = vertices.size() - 2;
+        int v_2 = i + 1;
+        int center = vertices.size() - 1;
+
+        triangles.push_back({
+            {v_1, top, v_2},
+            Colors::Yellow
+        });
+
+        triangles.push_back({
+            {v_2, center, v_1},
+            Colors::Yellow
+        });
+    }
+
+    return Mesh {
+        vertices,
+        triangles
+    };
+}
+
 Mesh create_cylinder_mesh(int steps, float radius, float height) {
     std::vector<Vec3> vertices;
     std::vector<Triangle> triangles;
@@ -203,7 +242,8 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
 
     scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
     scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 10.0f)));
-    Mesh* sphere_mesh = scene.meshes[1].get();
+    scene.meshes.push_back(std::make_unique<Mesh>(create_cone_mesh(25, 1.0, 5.0f)));
+    Mesh* sphere_mesh = scene.meshes[2].get();
 
     // for (RigidBody& body: sim.bodies) {
     //     scene.objects.push_back({
