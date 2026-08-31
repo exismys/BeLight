@@ -330,15 +330,15 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
         Colors::Yellow
     });
 
-    scene.objects.push_back({
-        plane_mesh,
-        Vec3{1.0f, 1.0f, 1.0f},
-        Vec3{0, 0, 0},
-        {-10, -5, 20},
+    // scene.objects.push_back({
+    //     plane_mesh,
+    //     Vec3{1.0f, 1.0f, 1.0f},
+    //     Vec3{0, 0, 0},
+    //     {-10, -5, 20},
 
-        nullptr,
-        Colors::LightGray
-    });
+    //     nullptr,
+    //     Colors::LightGray
+    // });
 
     scene.object_mode = ObjectMode::WIREFRAME;
 
@@ -438,6 +438,8 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
     scene.objects[0].rotation.x = get_runtime_seconds();
     scene.objects[1].rotation.x = get_runtime_seconds();
     
+    render_grid_2d(renderer, 10, 10, 1.0);
+
     for (Object& object: scene.objects) {
         // render_trail(renderer, object.trail, object.color, view);
         render_object(renderer, object, view, scene);
@@ -930,6 +932,24 @@ std::vector<float> interpolate(Vec2 p1, Vec2 p2) {
         y = y + slope;
     }
     return values;
+}
+
+void render_grid_2d(Renderer& renderer, int row, int column, float grid_size) {
+    for (int i = 0; i <= column; i++) {
+        draw_line_3d(renderer, 
+            {static_cast<float>(i), 0, 0}, 
+            {static_cast<float>(i), 0, static_cast<float>(row)}, 
+            Colors::LightGray
+        );
+    }
+
+    for (int i = 0; i <= row; i++) {
+        draw_line_3d(renderer, 
+            {0, 0, static_cast<float>(i)},
+            {static_cast<float>(column), 0, static_cast<float>(i)},
+            Colors::LightGray
+        );
+    }
 }
 
 void render_trail(Renderer& renderer, const std::deque<Vec3>* trail, Color color, Mat4& view) {
