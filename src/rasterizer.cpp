@@ -45,31 +45,22 @@ Mesh create_plane_mesh_line(int grid_row, int grid_column, float grid_size) {
     std::vector<Vec3> vertices;
     std::vector<Line> lines;
 
-    for (int i = 0; i <= grid_column; i++) {
-            float x = i * grid_size;
-            float y = 0;
-            float z = grid_row * grid_size;
-            vertices.push_back({x, y, z});
-    }
-
-    for (int i = 0; i <= grid_row; i++) {
-        float x = grid_column * grid_size;
-        float y = 0;
-        float z = i * grid_size;
-        vertices.push_back({x, y, z});
-    }
-
-    for (int i = 0; i < grid_column; i++) {
+    for (int row = 0; row <= grid_row; row++) {
+        float z = row * grid_size;
+        vertices.push_back({0, 0, z});
+        vertices.push_back({grid_column * grid_size, 0, z});
         lines.push_back({
-            {i, i + 1},
+            {static_cast<int>(vertices.size()) - 2, static_cast<int>(vertices.size()) - 1},
             Colors::LightGray
         });
-
     }
 
-    for (int i = grid_column + 1; i < grid_column + 1 + grid_row; i++) {
+    for (int column = 0; column <= grid_column; column++) {
+        float x = column * grid_size;
+        vertices.push_back({x, 0, 0});
+        vertices.push_back({x, 0, grid_row * grid_size});
         lines.push_back({
-            {i, i + 1},
+            {static_cast<int>(vertices.size()) - 2, static_cast<int>(vertices.size()) - 1},
             Colors::LightGray
         });
     }
@@ -621,7 +612,7 @@ std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> plan
 
 Line3D clip_line(Line3D line, std::span<Plane> planes) {
     for (Plane& plane: planes) {
-        Line3D line = clip_line_against_plane(line, plane);
+        line = clip_line_against_plane(line, plane);
     }
 
     return line;
