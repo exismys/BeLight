@@ -29,14 +29,32 @@ struct Triangle3D {
     Vec3 normal;
 };
 
-struct Plane{
+struct Line {
+    int v[2];
+    Color color;
+};
+
+struct Line3D {
+    Vec3 p0;
+    Vec3 p1;
+    Color color;
+};
+
+struct Plane {
     Vec3 normal;
     float D;
 };
 
+enum struct MeshType {
+    TRIANGLE,
+    LINE
+};
+
 struct Mesh {
+    MeshType mesh_type;
     std::vector<Vec3> vertices;
     std::vector<Triangle> triangles;
+    std::vector<Line> lines;
 };
 
 struct Camera {
@@ -88,13 +106,16 @@ Object clip_object(Object& object, Plane planes[]);
 Object clip_object_against_plane(Object object, Plane plane);
 std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> planes);
 std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane& plane);
+Line3D clip_line(Line3D line, std::span<Plane> planes);
+Line3D clip_line_against_plane(Line3D& line, Plane& plane);
 Vec3 plane_line_intersection(Vec3 a, Vec3 b, Plane plane);
 float signed_distance(Vec3 vertex, Plane& plane);
 
 
 void render_scene_rast(Renderer& renderer, Scene_Rast& scene);
 Mesh create_cube_mesh();
-Mesh create_plane_mesh(int grid_row, int grid_column, float grid_size = 0.5);
+Mesh create_plane_mesh_line(int grid_row, int grid_column, float grid_size = 0.5);
+Mesh create_plane_mesh_triangle(int grid_row, int grid_column, float grid_size = 0.5);
 Mesh create_cylinder_mesh(int steps, float radius = 1.0f, float height = 1.0f, Vec3 offset = {0, 0, 0}); 
 Mesh create_cone_mesh(int steps, float radius, float height, Vec3 offset = {0, 0, 0}); 
 Mesh create_sphere_mesh(int latitudes, int longitudes, float radius = 1.0f);

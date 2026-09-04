@@ -41,13 +41,48 @@ float get_runtime_seconds() {
     ).count();
 }
 
-// Mesh create_arrow_mesh() {
-//     Mesh cylinder_mesh = create_cylinder_mesh(25, 1.0, 1.0f);
-//     Mesh cone_mesh = create_cone_mesh(25, 1.0, 1.0f);
+Mesh create_plane_mesh_line(int grid_row, int grid_column, float grid_size) {
+    std::vector<Vec3> vertices;
+    std::vector<Line> lines;
 
-// }
+    for (int i = 0; i <= grid_column; i++) {
+            float x = i * grid_size;
+            float y = 0;
+            float z = grid_row * grid_size;
+            vertices.push_back({x, y, z});
+    }
 
-Mesh create_plane_mesh(int grid_row, int grid_column, float grid_size) {
+    for (int i = 0; i <= grid_row; i++) {
+        float x = grid_column * grid_size;
+        float y = 0;
+        float z = i * grid_size;
+        vertices.push_back({x, y, z});
+    }
+
+    for (int i = 0; i < grid_column; i++) {
+        lines.push_back({
+            {i, i + 1},
+            Colors::LightGray
+        });
+
+    }
+
+    for (int i = grid_column + 1; i < grid_column + 1 + grid_row; i++) {
+        lines.push_back({
+            {i, i + 1},
+            Colors::LightGray
+        });
+    }
+
+    return Mesh {
+        MeshType::LINE,
+        vertices,
+        {},
+        lines
+    };
+}
+
+Mesh create_plane_mesh_triangle(int grid_row, int grid_column, float grid_size) {
     std::vector<Vec3> vertices;
     std::vector<Triangle> triangles;
 
@@ -81,8 +116,9 @@ Mesh create_plane_mesh(int grid_row, int grid_column, float grid_size) {
     }
 
     return Mesh {
+        MeshType::TRIANGLE,
         vertices,
-        triangles
+        triangles,
     };
 }
 
@@ -124,6 +160,7 @@ Mesh create_cone_mesh(int steps, float radius, float height, Vec3 offset) {
     }
 
     return Mesh {
+        MeshType::TRIANGLE,
         vertices,
         triangles
     };
@@ -185,6 +222,7 @@ Mesh create_cylinder_mesh(int steps, float radius, float height, Vec3 offset) {
     }
 
     return Mesh {
+        MeshType::TRIANGLE,
         vertices,
         triangles
     };
@@ -236,6 +274,7 @@ Mesh create_sphere_mesh(int latitudes, int longitudes, float radius) {
     }
     
     return Mesh {
+        MeshType::TRIANGLE,
         vertices,
         triangles
     };
@@ -281,6 +320,7 @@ Mesh create_cube_mesh() {
     };
 
     return Mesh {
+        MeshType::TRIANGLE,
         vertices,
         triangles
     };
@@ -292,7 +332,7 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
     scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 1.0f, {0, 0, 0})));
     scene.meshes.push_back(std::make_unique<Mesh>(create_cone_mesh(25, 1.0, 0.2f, {0, 0.5, 0})));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_plane_mesh(1, 1, 20)));
+    scene.meshes.push_back(std::make_unique<Mesh>(create_plane_mesh_line(10, 10, 1)));
     Mesh* sphere_mesh = scene.meshes[0].get();
     Mesh* cylinder_mesh = scene.meshes[1].get();
     Mesh* cone_mesh = scene.meshes[2].get();
@@ -330,15 +370,15 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
         Colors::Yellow
     });
 
-    // scene.objects.push_back({
-    //     plane_mesh,
-    //     Vec3{1.0f, 1.0f, 1.0f},
-    //     Vec3{0, 0, 0},
-    //     {-10, -5, 20},
+    scene.objects.push_back({
+        plane_mesh,
+        Vec3{1.0f, 1.0f, 1.0f},
+        Vec3{0, 0, 0},
+        {-10, -5, 20},
 
-    //     nullptr,
-    //     Colors::LightGray
-    // });
+        nullptr,
+        Colors::LightGray
+    });
 
     scene.object_mode = ObjectMode::WIREFRAME;
 
@@ -438,7 +478,7 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
     scene.objects[0].rotation.x = get_runtime_seconds();
     scene.objects[1].rotation.x = get_runtime_seconds();
     
-    render_grid_2d(renderer, 10, 10, 1.0);
+    // render_grid_2d(renderer, 10, 10, 1.0);
 
     for (Object& object: scene.objects) {
         // render_trail(renderer, object.trail, object.color, view);
@@ -466,44 +506,68 @@ void render_object(Renderer& renderer, Object& object, Mat4& view, Scene_Rast& s
         transformed_vertices.push_back(world);
     }
 
-    for (const Triangle& t: object.mesh->triangles) {
+    if (object.mesh->mesh_type == MeshType::TRIANGLE) {
+        for (const Triangle& t: object.mesh->triangles) {
 
-        //----------------------------------------------------------------------
-        // transformed_vertices has vertex in Vec4 format {x, y, z, w} intended
-        // for transformations using 4 by 4 matrices.
+            //----------------------------------------------------------------------
+            // transformed_vertices has vertex in Vec4 format {x, y, z, w} intended
+            // for transformations using 4 by 4 matrices.
 
-        // We need to convert them into Vec3 format.
-        //----------------------------------------------------------------------
-        Vec3 p0 = { 
-            transformed_vertices[t.v[0]].x, 
-            transformed_vertices[t.v[0]].y,
-            transformed_vertices[t.v[0]].z
-        };
+            // We need to convert them into Vec3 format.
+            //----------------------------------------------------------------------
+            Vec3 p0 = { 
+                transformed_vertices[t.v[0]].x, 
+                transformed_vertices[t.v[0]].y,
+                transformed_vertices[t.v[0]].z
+            };
 
-        Vec3 p1 = { 
-            transformed_vertices[t.v[1]].x, 
-            transformed_vertices[t.v[1]].y,
-            transformed_vertices[t.v[1]].z
-        };
+            Vec3 p1 = { 
+                transformed_vertices[t.v[1]].x, 
+                transformed_vertices[t.v[1]].y,
+                transformed_vertices[t.v[1]].z
+            };
 
-        Vec3 p2 = { 
-            transformed_vertices[t.v[2]].x, 
-            transformed_vertices[t.v[2]].y,
-            transformed_vertices[t.v[2]].z
-        };
-        //----------------------------------------------------------------------
+            Vec3 p2 = { 
+                transformed_vertices[t.v[2]].x, 
+                transformed_vertices[t.v[2]].y,
+                transformed_vertices[t.v[2]].z
+            };
+            //----------------------------------------------------------------------
 
-        Triangle3D triangle_to_clip = {p0, p1, p2, object.color};
+            Triangle3D triangle_to_clip = {p0, p1, p2, object.color};
 
-        // This call also updates the Triangle3D instance's normal attr
-        if (is_back_face(triangle_to_clip)) {
-            continue;
+            // This call also updates the Triangle3D instance's normal attr
+            if (is_back_face(triangle_to_clip)) {
+                continue;
+            }
+
+            std::vector<Triangle3D> clipped = clip_triangle(triangle_to_clip, planes);
+
+            for (Triangle3D& t: clipped) {
+                render_triangle(renderer, t, scene);
+            }
         }
+    } else if (object.mesh->mesh_type == MeshType::LINE) {
 
-        std::vector<Triangle3D> clipped = clip_triangle(triangle_to_clip, planes);
+        for (const Line& l: object.mesh->lines) {
 
-        for (Triangle3D& t: clipped) {
-            render_triangle(renderer, t, scene);
+            Vec3 p0 = { 
+                transformed_vertices[l.v[0]].x, 
+                transformed_vertices[l.v[0]].y,
+                transformed_vertices[l.v[0]].z
+            };
+
+            Vec3 p1 = { 
+                transformed_vertices[l.v[1]].x, 
+                transformed_vertices[l.v[1]].y,
+                transformed_vertices[l.v[1]].z
+            };
+
+            Line3D line_to_clip = {p0, p1, object.color};
+
+            Line3D line = clip_line(line_to_clip, planes);
+
+            draw_line_3d(renderer, line.p0, line.p1, line.color);
         }
     }
 }
@@ -553,6 +617,43 @@ std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> plan
     }
 
     return triangles;
+}
+
+Line3D clip_line(Line3D line, std::span<Plane> planes) {
+    for (Plane& plane: planes) {
+        Line3D line = clip_line_against_plane(line, plane);
+    }
+
+    return line;
+}
+
+Line3D clip_line_against_plane(Line3D& line, Plane& plane) {
+    float d0 = signed_distance(line.p0, plane);
+    float d1 = signed_distance(line.p1, plane);
+
+    if (d0 > 0 && d1 > 0) {
+        return line;
+    }
+
+    if (d0 < 0 && d1 < 0) {
+        return {};
+    }
+
+    // If it's intersecting the clipping plane
+
+    if (d0 > 0 && d1 < 0) {
+        Vec3 a = line.p0;
+        Vec3 b_dash = plane_line_intersection(line.p0, line.p1, plane);
+        return {a, b_dash};
+    }
+
+    if (d0 < 0 && d1 > 0) {
+        Vec3 a_dash = plane_line_intersection(line.p1, line.p0, plane);
+        Vec3 b = line.p1;
+        return {a_dash, b};
+    }
+
+    return {};
 }
 
 std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane& plane) {
