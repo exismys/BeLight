@@ -365,7 +365,7 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
         plane_mesh,
         Vec3{1.0f, 1.0f, 1.0f},
         Vec3{0, 0, 0},
-        {-10, -5, 20},
+        {-5, -1, 5},
 
         nullptr,
         Colors::LightGray
