@@ -329,23 +329,23 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     Mesh* cone_mesh = scene.meshes[2].get();
     Mesh* plane_mesh = scene.meshes[3].get();
 
-    // for (RigidBody& body: sim.bodies) {
-    //     scene.objects.push_back({
-    //         sphere_mesh,
-    //         Vec3{body.radius, body.radius, body.radius},
-    //         Vec3{0, 0, 0},
-    //         body.position,
+    for (RigidBody& body: sim.bodies) {
+        scene.objects.push_back({
+            sphere_mesh,
+            Vec3{body.radius, body.radius, body.radius},
+            Vec3{0, 0, 0},
+            body.position,
 
-    //         nullptr,
-    //         body.color
-    //     });
-    // }
+            nullptr,
+            body.color
+        });
+    }
 
     scene.objects.push_back({
         cylinder_mesh,
         Vec3{0.02f, 1.0f, 0.02f},
         Vec3{0, 0, 0},
-        {0, 0, 10},
+        scene.objects[0].position,
 
         nullptr,
         Colors::Yellow
@@ -368,7 +368,7 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
         {-5, -1, 5},
 
         nullptr,
-        Colors::LightGray
+        Colors::LightGray * 0.5
     });
 
     scene.object_mode = ObjectMode::WIREFRAME;

@@ -90,6 +90,7 @@ Vec4& operator*=(Vec4& a, float b);
 Vec4 operator/(const Vec4& a, float b);
 Vec4& operator/=(Vec4& a, float b);
 
+Vec4 toVec4(Vec3& v);
 float dot_product(const Vec4& a, const Vec4& b);
 float magnitude(const Vec4& a);
 
@@ -107,3 +108,12 @@ Mat4 scale_matrix(const Vec3& v);
 
 Vec4 operator*(const Mat4& m, const Vec4& v);
 Mat4 operator*(const Mat4& a, const Mat4& b);
+
+// Miscellaneous
+Vec4 toVec4(Vec3& v); 
+
+float get_eular_angle_z(Vec3& a, Vec3& b);
+float get_eular_angle_x(Vec3& a, Vec3& b);
+
+Vec3 get_xy_projection(Vec3& a); 
+Vec3 get_yz_projection(Vec3& a);

@@ -1,7 +1,7 @@
 #include <cmath>
 #include "mathematics.hpp"
 
-// Matrix operations
+// Matrix-Vector operations
 // ------------------------------------------------
 Mat4 identity_matrix() {
     Mat4 m{};
@@ -208,6 +208,7 @@ Vec4& operator/=(Vec4& a, float b) {
     return a;
 }
 
+
 float dot_product(const Vec4& a, const Vec4& b) {
     return
         a.x * b.x +
@@ -218,6 +219,54 @@ float dot_product(const Vec4& a, const Vec4& b) {
 
 float magnitude(const Vec4& a) {
     return std::sqrt(dot_product(a, a));
+}
+// ------------------------------------------------
+
+// Miscellaneous operations
+// ------------------------------------------------
+Vec4 toVec4(Vec3& v) {
+    return Vec4{
+        v.x,
+        v.y,
+        v.z,
+        1.0f
+    };
+}
+
+float get_eular_angle_z(Vec3& a, Vec3& b) {
+    Vec3 a_xy = get_xy_projection(a);
+    Vec3 b_xy = get_xy_projection(b);
+
+    float cross = cross_product(a_xy, b_xy).z;
+    float dot = dot_product(a_xy, b_xy);
+
+    return std::atan2(cross, dot);
+}
+
+float get_eular_angle_x(Vec3& a, Vec3& b) {
+    Vec3 a_yz = get_yz_projection(a);
+    Vec3 b_yz = get_yz_projection(b);
+
+    float cross = cross_product(a_yz, b_yz).z;
+    float dot = dot_product(a_yz, b_yz);
+
+    return std::atan2(cross, dot);
+}
+
+Vec3 get_xy_projection(Vec3& a) {
+    return Vec3{
+        a.x,
+        a.y,
+        0
+    };
+}
+
+Vec3 get_yz_projection(Vec3& a) {
+    return Vec3{
+        0,
+        a.y,
+        a.z
+    };
 }
 // ------------------------------------------------
 
@@ -355,8 +404,8 @@ Vec3 rotate_around_x(const Vec3& v, float angle) {
 
     return Vec3{
         v.x,
-        v.y * cos_angle - v.z * sin_angle,
-        v.y * sin_angle + v.z * cos_angle,
+        v.y * cos_angle + v.z * sin_angle,
+        - v.y * sin_angle + v.z * cos_angle,
     };
 }
 
@@ -376,8 +425,8 @@ Vec3 rotate_around_z(const Vec3& v, float angle) {
     float sin_angle = std::sin(angle);
 
     return Vec3{
-        v.x * cos_angle - v.y * sin_angle,
-        v.x * sin_angle + v.y * cos_angle,
+        v.x * cos_angle + v.y * sin_angle,
+        - v.x * sin_angle + v.y * cos_angle,
         v.z
     };
 }

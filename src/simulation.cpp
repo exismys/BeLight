@@ -9,7 +9,7 @@ Simulation create_simulation() {
     std::vector<RigidBody> bodies;
 
     bodies.push_back(RigidBody{
-        {-2.0f, -2.0f, 30.5f},
+        {-2.0f, -2.0f, 15.0f},
         {0.6f, -1.1f, 3.1f},
         {0.0f, 0.0f, 0.0f},
 
@@ -20,7 +20,7 @@ Simulation create_simulation() {
     });
 
     bodies.push_back(RigidBody{
-        {2.0f, 2.0f, 30.5f},
+        {2.0f, 2.0f, 15.0f},
         {-0.6f, 1.1f, -1.0f},
         {0.0f, 0.0f, 0.0f},
 
@@ -31,7 +31,7 @@ Simulation create_simulation() {
     });
 
     bodies.push_back(RigidBody{
-        {10.0f, 6.0f, 30.5f},
+        {10.0f, 6.0f, 15.0f},
         {0.6f, -1.1f, 3.1f},
         {0.0f, 0.0f, 0.0f},
 
