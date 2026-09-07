@@ -466,8 +466,8 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
                 rotation_z_matrix(-scene.camera.rotation.z) *
                 translation_matrix(-scene.camera.position);
 
-    scene.objects[0].rotation.x = get_runtime_seconds();
-    scene.objects[1].rotation.x = get_runtime_seconds();
+    // scene.objects[0].rotation.x = get_runtime_seconds();
+    // scene.objects[1].rotation.x = get_runtime_seconds();
     
     // render_grid_2d(renderer, 10, 10, 1.0);
 

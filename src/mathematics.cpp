@@ -240,17 +240,17 @@ float get_eular_angle_z(Vec3& a, Vec3& b) {
     float cross = cross_product(a_xy, b_xy).z;
     float dot = dot_product(a_xy, b_xy);
 
-    return std::atan2(cross, dot);
+    return std::atan2(-cross, dot);
 }
 
 float get_eular_angle_x(Vec3& a, Vec3& b) {
     Vec3 a_yz = get_yz_projection(a);
     Vec3 b_yz = get_yz_projection(b);
 
-    float cross = cross_product(a_yz, b_yz).z;
+    float cross = cross_product(a_yz, b_yz).x;
     float dot = dot_product(a_yz, b_yz);
 
-    return std::atan2(cross, dot);
+    return std::atan2(-cross, dot);
 }
 
 Vec3 get_xy_projection(Vec3& a) {
