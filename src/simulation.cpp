@@ -19,27 +19,27 @@ Simulation create_simulation() {
         Colors::Yellow
     });
 
-    // bodies.push_back(RigidBody{
-    //     {2.0f, 2.0f, 15.0f},
-    //     {-0.6f, 1.1f, -1.0f},
-    //     {0.0f, 0.0f, 0.0f},
+    bodies.push_back(RigidBody{
+        {2.0f, 2.0f, 15.0f},
+        {-0.6f, 1.1f, -1.0f},
+        {0.0f, 0.0f, 0.0f},
 
-    //     50.0f,
-    //     0.5f,
+        50.0f,
+        0.5f,
 
-    //     Colors::Cyan
-    // });
+        Colors::Cyan
+    });
 
-    // bodies.push_back(RigidBody{
-    //     {10.0f, 6.0f, 15.0f},
-    //     {0.6f, -1.1f, 3.1f},
-    //     {0.0f, 0.0f, 0.0f},
+    bodies.push_back(RigidBody{
+        {10.0f, 6.0f, 15.0f},
+        {0.6f, -1.1f, 3.1f},
+        {0.0f, 0.0f, 0.0f},
 
-    //     50.0f,
-    //     0.5f,
+        50.0f,
+        0.5f,
 
-    //     Colors::LightGray
-    // });
+        Colors::LightGray
+    });
 
     // bodies.push_back(RigidBody{
     //     {-3.0f, -3.0f, 30.5f},

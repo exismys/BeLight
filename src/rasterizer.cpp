@@ -323,7 +323,7 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
     scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 1.0f, {0, 0, 0})));
     scene.meshes.push_back(std::make_unique<Mesh>(create_cone_mesh(25, 1.0, 0.2f, {0, 0.5, 0})));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_plane_mesh_line(10, 10, 1)));
+    scene.meshes.push_back(std::make_unique<Mesh>(create_plane_mesh_line(50, 50, 1)));
     Mesh* sphere_mesh = scene.meshes[0].get();
     Mesh* cylinder_mesh = scene.meshes[1].get();
     Mesh* cone_mesh = scene.meshes[2].get();

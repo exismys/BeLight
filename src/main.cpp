@@ -122,6 +122,8 @@ int main() {
 
     SDL_Event event;
 
+    float phi = 0;
+
     while (running) {
 
         //===============================================================
@@ -296,6 +298,8 @@ int main() {
             movement = normalize(movement);
 
         scene_rast.camera.position += movement * speed * dt;
+
+        
         //===============================================================
 
         //===============================================================
@@ -316,9 +320,19 @@ int main() {
         // Fixed timestep integration
         accumulator += frame_time;
         while (accumulator >= dt) {
-            update_simulation(simulation, dt);
+            // update_simulation(simulation, dt);
+
+
+            float radius = 15;
+            Vec3 point{0, 0, radius};
+            scene_rast.camera.position = {point.x + (radius * std::sin(phi)), 0, point.z - (radius * std::cos(phi))};
+            phi += (3.14 / 30) * dt;
+
+            std::cout << scene_rast.camera.position.x << ", " << scene_rast.camera.position.z << "\n";
+
             accumulator -= dt;
         }
+
         //===============================================================
 
 
@@ -332,7 +346,7 @@ int main() {
 
         int i = simulation.bodies.size();
 
-        Vec3 target_dir = simulation.bodies[0].velocity;
+        Vec3 target_dir = simulation.bodies[0].acceleration;
         Vec3 current_dir = Vec3{0, 1, 0};
 
         float eular_z = get_eular_angle_z(current_dir, target_dir);
