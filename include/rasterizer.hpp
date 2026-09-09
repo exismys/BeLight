@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <memory>
+#include <optional>
 #include <vector>
 #include <cmath>
 #include <span>
@@ -106,8 +107,8 @@ Object clip_object(Object& object, Plane planes[]);
 Object clip_object_against_plane(Object object, Plane plane);
 std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> planes);
 std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane& plane);
-Line3D clip_line(Line3D line, std::span<Plane> planes);
-Line3D clip_line_against_plane(Line3D& line, Plane& plane);
+std::optional<Line3D> clip_line(Line3D line, std::span<Plane> planes);
+std::optional<Line3D> clip_line_against_plane(Line3D& line, Plane& plane);
 Vec3 plane_line_intersection(Vec3 a, Vec3 b, Plane plane);
 float signed_distance(Vec3 vertex, Plane& plane);
 

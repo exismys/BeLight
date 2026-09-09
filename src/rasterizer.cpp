@@ -556,9 +556,10 @@ void render_object(Renderer& renderer, Object& object, Mat4& view, Scene_Rast& s
 
             Line3D line_to_clip = {p0, p1, object.color};
 
-            Line3D line = clip_line(line_to_clip, planes);
-
-            draw_line_3d(renderer, line.p0, line.p1, line.color);
+            std::optional<Line3D> line = clip_line(line_to_clip, planes);
+            if (line.has_value()) {
+                draw_line_3d(renderer, line->p0, line->p1, line->color);
+            }
         }
     }
 }
@@ -610,41 +611,45 @@ std::vector<Triangle3D> clip_triangle(Triangle3D triangle, std::span<Plane> plan
     return triangles;
 }
 
-Line3D clip_line(Line3D line, std::span<Plane> planes) {
+std::optional<Line3D> clip_line(Line3D line, std::span<Plane> planes) {
     for (Plane& plane: planes) {
-        line = clip_line_against_plane(line, plane);
+        std::optional<Line3D> clipped_line = clip_line_against_plane(line, plane);
+        if (!clipped_line.has_value()) {
+            return std::nullopt;
+        }
+        line = *clipped_line;
     }
 
     return line;
 }
 
-Line3D clip_line_against_plane(Line3D& line, Plane& plane) {
+std::optional<Line3D> clip_line_against_plane(Line3D& line, Plane& plane) {
     float d0 = signed_distance(line.p0, plane);
     float d1 = signed_distance(line.p1, plane);
 
-    if (d0 > 0 && d1 > 0) {
+    if (d0 >= 0 && d1 >= 0) {
         return line;
     }
 
     if (d0 < 0 && d1 < 0) {
-        return {};
+        return std::nullopt;
     }
 
     // If it's intersecting the clipping plane
 
-    if (d0 > 0 && d1 < 0) {
+    if (d0 >= 0 && d1 < 0) {
         Vec3 a = line.p0;
         Vec3 b_dash = plane_line_intersection(line.p0, line.p1, plane);
-        return {a, b_dash};
+        return Line3D{a, b_dash, line.color};
     }
 
-    if (d0 < 0 && d1 > 0) {
+    if (d0 < 0 && d1 >= 0) {
         Vec3 a_dash = plane_line_intersection(line.p1, line.p0, plane);
         Vec3 b = line.p1;
-        return {a_dash, b};
+        return Line3D{a_dash, b, line.color};
     }
 
-    return {};
+    return line;
 }
 
 std::vector<Triangle3D> clip_triangle_against_plane(Triangle3D& triangle, Plane& plane) {
