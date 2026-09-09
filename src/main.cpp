@@ -108,6 +108,10 @@ int main() {
     bool mouse_look_active = false;
     bool relative_mouse_just_enabled = false;
 
+    // Scene related vars
+    float phi = 0;
+    const float PI = 3.14159265359f;
+
     // Switch between normal and relative mouse mode
     const auto set_mouse_look = [&](bool enabled) {
         mouse_look_active = enabled;
@@ -121,8 +125,6 @@ int main() {
     SDL_ShowCursor(SDL_ENABLE);
 
     SDL_Event event;
-
-    float phi = 0;
 
     while (running) {
 
@@ -320,15 +322,20 @@ int main() {
         // Fixed timestep integration
         accumulator += frame_time;
         while (accumulator >= dt) {
-            // update_simulation(simulation, dt);
+            update_simulation(simulation, dt);
 
+            //-------------------------------------------------------------------
+            // Automate Camera movement and orientation
+            //-------------------------------------------------------------------
+            float radius = 50;
+            float omega = (PI / 40); 
+            Vec3 point{0, 0, 15}; // pivot
 
-            float radius = 15;
-            Vec3 point{0, 0, radius};
             scene_rast.camera.position = {point.x + (radius * std::sin(phi)), 0, point.z - (radius * std::cos(phi))};
-            phi += (3.14 / 30) * dt;
 
-            std::cout << scene_rast.camera.position.x << ", " << scene_rast.camera.position.z << "\n";
+            scene_rast.camera.rotation = {0, phi, 0};
+            phi += omega * dt;
+            //-------------------------------------------------------------------
 
             accumulator -= dt;
         }
