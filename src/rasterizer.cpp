@@ -558,7 +558,7 @@ void render_object(Renderer& renderer, Object& object, Mat4& view, Scene_Rast& s
 
             std::optional<Line3D> line = clip_line(line_to_clip, planes);
             if (line.has_value()) {
-                draw_line_3d(renderer, line->p0, line->p1, line->color);
+                draw_line_3d(renderer, *line);
             }
         }
     }
@@ -1033,19 +1033,21 @@ std::vector<float> interpolate(Vec2 p1, Vec2 p2) {
 
 void render_grid_2d(Renderer& renderer, int row, int column, float grid_size) {
     for (int i = 0; i <= column; i++) {
-        draw_line_3d(renderer, 
+        Line3D line = {
             {static_cast<float>(i), 0, 0}, 
             {static_cast<float>(i), 0, static_cast<float>(row)}, 
             Colors::LightGray
-        );
+        };
+        draw_line_3d(renderer, line);
     }
 
     for (int i = 0; i <= row; i++) {
-        draw_line_3d(renderer, 
+        Line3D line = {
             {0, 0, static_cast<float>(i)},
             {static_cast<float>(column), 0, static_cast<float>(i)},
             Colors::LightGray
-        );
+        };
+        draw_line_3d(renderer, line);
     }
 }
 
@@ -1058,19 +1060,73 @@ void render_trail(Renderer& renderer, const std::deque<Vec3>* trail, Color color
         Vec4 transformed_p1 = view * Vec4{p1.x, p1.y, p1.z, 1};
         Vec4 transformed_p2 = view * Vec4{p2.x, p2.y, p2.z, 1};
 
-        draw_line_3d(
-            renderer, 
+        Line3D line = {
             Vec3{transformed_p1.x, transformed_p1.y, transformed_p1.z}, 
             Vec3{transformed_p2.x, transformed_p2.y, transformed_p2.z}, 
             color
-        );
+
+        };
+
+        draw_line_3d(renderer, line);
     }
 }
 
-void draw_line_3d(Renderer& renderer, Vec3 p1, Vec3 p2, Color color) {
-    Vec2 pp1 = project_vertex(renderer, p1);
-    Vec2 pp2 = project_vertex(renderer, p2);
-    draw_line(renderer, pp1, pp2, color);
+void draw_line_3d(Renderer& renderer, Line3D& line) {
+    Vec2 p1 = project_vertex(renderer, line.p0);
+    Vec2 p2 = project_vertex(renderer, line.p1);
+
+    Vec3 t1 = line.p0;
+    Vec3 t2 = line.p1;
+
+    if (std::abs(p2.x - p1.x) > std::abs(p2.y - p1.y)) {
+        if (p1.x > p2.x) {
+            std::swap(p1, p2);
+            std::swap(t1, t2);
+        }
+
+        int x1 = std::round(p1.x);
+        int x2 = std::round(p2.x);
+
+        std::vector<float> y_values = interpolate(p1, p2);
+        std::vector<float> z_values = interpolate(
+            {p1.x, 1 / t1.z},
+            {p2.x, 1 / t2.z}
+        );
+
+        for (int x = x1; x <= x2; x++) {
+            Vec2 world_point = Vec2{static_cast<float>(x), y_values[x - x1]};
+            if (z_values[x - x1] > get_depth_value(renderer, world_point)) {
+                draw_point(renderer, world_point, line.color);
+                update_depth_buffer(renderer, world_point, z_values[x-x1]);
+            }
+        }
+    } else {
+        if (p1.y > p2.y) {
+            std::swap(p1, p2);
+            std::swap(t1, t2);
+        }
+
+        int y1 = std::round(p1.y);
+        int y2 = std::round(p2.y);
+
+        std::vector<float> x_values = interpolate(
+            Vec2{p1.y, p1.x}, 
+            Vec2{p2.y, p2.x}
+        );
+        std::vector<float> z_values = interpolate(
+            Vec2{p1.y, 1 / t1.z},
+            Vec2{p2.y, 1 / t2.z}
+        );
+
+        for (int y = y1; y <= y2; y++) {
+            Vec2 world_point = Vec2{x_values[y-y1], static_cast<float>(y)};
+
+            if (z_values[y - y1] > get_depth_value(renderer, world_point)) {
+                draw_point(renderer, world_point, line.color);
+                update_depth_buffer(renderer, world_point, z_values[y - y1]);
+            }
+        }
+    }
 }
 
 void draw_line(Renderer& renderer, Vec2 p1, Vec2 p2, Color color) {

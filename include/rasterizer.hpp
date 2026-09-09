@@ -127,7 +127,7 @@ std::vector<float> interpolate(Vec2 p1, Vec2 p2);
 
 void render_grid_2d(Renderer& renderer, int row, int column, float grid_size);
 void render_trail(Renderer& renderer, const std::deque<Vec3>* trail, Color color, Mat4& view);
-void draw_line_3d(Renderer& renderer, Vec3 p1, Vec3 p2, Color color);
+void draw_line_3d(Renderer& renderer, Line3D& line);
 void draw_line(Renderer& renderer, Vec2 p1, Vec2 p2, Color color);
 
 void draw_triangle_wireframe(Renderer& renderer, Vec2 p1, Vec2 p2, Vec2 p3, Color color);
