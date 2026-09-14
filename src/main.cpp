@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstddef>
 #include <format>
 #include <iostream>
 #include <cstdint>
@@ -328,18 +329,29 @@ int main() {
             // Automate Camera movement and orientation
             //-------------------------------------------------------------------
             float radius = 50;
-            float omega = (PI / 40); 
-            Vec3 point{0, 0, 15}; // pivot
+            float height = 10;
+            float omega = (PI / 35);
+            Vec3 pivot = {0, 0, 0};
+            float total_mass = 0;
 
-            scene_rast.camera.position = {point.x + (radius * std::sin(phi)), 0, point.z - (radius * std::cos(phi))};
+            for (int i = 0; i < simulation.bodies.size(); i++) {
+                RigidBody body = simulation.bodies[i];
+                pivot += body.position * body.mass;
+                total_mass += body.mass;
+            }
 
-            scene_rast.camera.rotation = {0, phi, 0};
+            pivot /= total_mass;
+
+            scene_rast.camera.position = {pivot.x + (radius * std::sin(phi)), pivot.y + height, pivot.z - (radius * std::cos(phi))};
+
+            float theta = std::atan(height / radius);
+
+            scene_rast.camera.rotation = {-theta, phi, 0};
             phi += omega * dt;
             //-------------------------------------------------------------------
 
             accumulator -= dt;
         }
-
         //===============================================================
 
 
@@ -362,10 +374,10 @@ int main() {
         float eular_x = get_eular_angle_x(transformed_dir, target_dir);
 
         scene_rast.objects[i].rotation = {eular_x, 0, eular_z};
-        scene_rast.objects[i].position = simulation.bodies[0].position + normalize(target_dir) * simulation.bodies[0].radius;
+        scene_rast.objects[i].position = simulation.bodies[0].position;
 
         scene_rast.objects[i + 1].rotation = {eular_x, 0, eular_z};
-        scene_rast.objects[i + 1].position = simulation.bodies[0].position + normalize(target_dir) * simulation.bodies[0].radius;
+        scene_rast.objects[i + 1].position = simulation.bodies[0].position;
         //===============================================================
 
 
@@ -378,7 +390,6 @@ int main() {
         // Render scenes
         // render_simulation(renderer, simulation);
         // render_ray_traced_scene(renderer, scene);
-        // render_trails(renderer, simulation);
         render_scene_rast(renderer, scene_rast);
 
         // Render text info

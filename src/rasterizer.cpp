@@ -172,6 +172,13 @@ Mesh create_cylinder_mesh(int steps, float radius, float height, Vec3 offset) {
         vertices.push_back({x, y2, z});
     }
 
+    vertices.push_back({0, height / 2.0f, 0});
+    vertices.push_back({0, -height / 2.0f, 0});
+
+    for (int i = 0; i < vertices.size(); i++) {
+        vertices[i] += offset;
+    }
+
     for (int i = 0; i < vertices.size() - 3; i += 2) {
         int top_left = i;
         int top_right = i + 2;
@@ -189,8 +196,6 @@ Mesh create_cylinder_mesh(int steps, float radius, float height, Vec3 offset) {
         });
     }
 
-    vertices.push_back({0, height / 2.0f, 0});
-    vertices.push_back({0, -height / 2.0f, 0});
 
     for (int i = 0; i < vertices.size() - 5; i += 2) {
         int top_center = vertices.size() - 2;
@@ -321,9 +326,9 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     Scene_Rast scene;
 
     scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 1.0f, {0, 0, 0})));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_cone_mesh(25, 1.0, 0.2f, {0, 0.5, 0})));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_plane_mesh_line(50, 50, 1)));
+    scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 1.0f, {0, 0.5, 0})));
+    scene.meshes.push_back(std::make_unique<Mesh>(create_cone_mesh(25, 1.0, 0.2f, {0, 1.0, 0})));
+    scene.meshes.push_back(std::make_unique<Mesh>(create_plane_mesh_line(25, 25, 2)));
     Mesh* sphere_mesh = scene.meshes[0].get();
     Mesh* cylinder_mesh = scene.meshes[1].get();
     Mesh* cone_mesh = scene.meshes[2].get();
@@ -472,7 +477,7 @@ void render_scene_rast(Renderer& renderer, Scene_Rast& scene) {
     // render_grid_2d(renderer, 10, 10, 1.0);
 
     for (Object& object: scene.objects) {
-        // render_trail(renderer, object.trail, object.color, view);
+        render_trail(renderer, object.trail, object.color, view);
         render_object(renderer, object, view, scene);
     }
 }
@@ -1052,6 +1057,10 @@ void render_grid_2d(Renderer& renderer, int row, int column, float grid_size) {
 }
 
 void render_trail(Renderer& renderer, const std::deque<Vec3>* trail, Color color, Mat4& view) {
+    if (trail == nullptr || trail->size() < 2) {
+        return;
+    }
+
     for (size_t i = 1; i < trail->size(); i++) {
 
         Vec3 p1 = (*trail)[i-1];
@@ -1064,7 +1073,6 @@ void render_trail(Renderer& renderer, const std::deque<Vec3>* trail, Color color
             Vec3{transformed_p1.x, transformed_p1.y, transformed_p1.z}, 
             Vec3{transformed_p2.x, transformed_p2.y, transformed_p2.z}, 
             color
-
         };
 
         draw_line_3d(renderer, line);
