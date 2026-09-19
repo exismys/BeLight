@@ -326,13 +326,13 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
     Scene_Rast scene;
 
     scene.meshes.push_back(std::make_unique<Mesh>(create_sphere_mesh(25, 25, 1.0f)));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 1.0f, {0, 0.5, 0})));
-    scene.meshes.push_back(std::make_unique<Mesh>(create_cone_mesh(25, 1.0, 0.2f, {0, 1.0, 0})));
+    // scene.meshes.push_back(std::make_unique<Mesh>(create_cylinder_mesh(25, 1.0, 1.0f, {0, 0.5, 0})));
+    // scene.meshes.push_back(std::make_unique<Mesh>(create_cone_mesh(25, 1.0, 0.2f, {0, 1.0, 0})));
     scene.meshes.push_back(std::make_unique<Mesh>(create_plane_mesh_line(25, 25, 2)));
     Mesh* sphere_mesh = scene.meshes[0].get();
-    Mesh* cylinder_mesh = scene.meshes[1].get();
-    Mesh* cone_mesh = scene.meshes[2].get();
-    Mesh* plane_mesh = scene.meshes[3].get();
+    // Mesh* cylinder_mesh = scene.meshes[1].get();
+    // Mesh* cone_mesh = scene.meshes[2].get();
+    Mesh* plane_mesh = scene.meshes[1].get();
 
     for (RigidBody& body: sim.bodies) {
         scene.objects.push_back({
@@ -346,25 +346,25 @@ Scene_Rast create_scene_rast_from_sim(Simulation& sim) {
         });
     }
 
-    scene.objects.push_back({
-        cylinder_mesh,
-        Vec3{0.02f, 1.0f, 0.02f},
-        Vec3{0, 0, 0},
-        scene.objects[0].position,
+    // scene.objects.push_back({
+    //     cylinder_mesh,
+    //     Vec3{0.02f, 1.0f, 0.02f},
+    //     Vec3{0, 0, 0},
+    //     scene.objects[0].position,
 
-        nullptr,
-        Colors::Yellow
-    });
+    //     nullptr,
+    //     Colors::Yellow
+    // });
 
-    scene.objects.push_back({
-        cone_mesh,
-        Vec3{0.03f, 1.0f, 0.03f},
-        Vec3{0, 0, 0},
-        {0, 0, 10},
+    // scene.objects.push_back({
+    //     cone_mesh,
+    //     Vec3{0.03f, 1.0f, 0.03f},
+    //     Vec3{0, 0, 0},
+    //     {0, 0, 10},
 
-        nullptr,
-        Colors::Yellow
-    });
+    //     nullptr,
+    //     Colors::Yellow
+    // });
 
     scene.objects.push_back({
         plane_mesh,

@@ -9,8 +9,8 @@ Simulation create_simulation() {
     std::vector<RigidBody> bodies;
 
     bodies.push_back(RigidBody{
-        {-2.0f, -2.0f, 15.0f},
-        {0.6f, -1.0f, 0.0f},
+        {3.4641f, 0.0f, 20.0f},
+        {0.0f,  2.88675f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
@@ -20,8 +20,8 @@ Simulation create_simulation() {
     });
 
     bodies.push_back(RigidBody{
-        {2.0f, 2.0f, 15.0f},
-        {-0.6f, 1.1f, -1.0f},
+        {-1.7321f, 3.0f, 20.0f},
+        {-2.5f, -1.44338f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
@@ -31,8 +31,8 @@ Simulation create_simulation() {
     });
 
     bodies.push_back(RigidBody{
-        {10.0f, 6.0f, 15.0f},
-        {0.6f, -1.1f, 3.1f},
+        {-1.7321f, -3.0f, 20.0f},
+        {2.5f, -1.44338f, 0.0f},
         {0.0f, 0.0f, 0.0f},
 
         50.0f,
@@ -41,16 +41,47 @@ Simulation create_simulation() {
         Colors::LightGray
     });
 
-    // bodies.push_back(RigidBody{
-    //     {-3.0f, -3.0f, 30.5f},
-    //     {0.6f, -2.5f, -2.5f},
-    //     {0.0f, 0.0f, 0.0f},
+    // Three body configuration #1
+    // bodies[0].position = {  5.7735f,  0.0f, 25.0f };
+    // bodies[1].position = { -2.88675f,  5.0f, 25.0f };
+    // bodies[2].position = { -2.88675f, -5.0f, 25.0f };
 
-    //     0.25f,
-    //     0.25f,
+    // bodies[0].velocity = {  0.0f,     2.23607f, 0.0f };
+    // bodies[1].velocity = { -1.93649f, -1.11803f, 0.0f };
+    // bodies[2].velocity = {  1.93649f, -1.11803f, 0.0f };
 
-    //     Colors::LightGray
-    // });
+    // Three body configuration #2
+    // bodies[0].position = { -0.970004f,  0.243087f, 25.0f };
+    // bodies[1].position = {  0.970004f, -0.243087f, 25.0f };
+    // bodies[2].position = {  0.0f,       0.0f,      25.0f };
+
+    // bodies[0].velocity = {  3.296f,  3.057f, 0.0f };
+    // bodies[1].velocity = {  3.296f,  3.057f, 0.0f };
+    // bodies[2].velocity = { -6.592f, -6.114f, 0.0f };
+
+    // Three body configuration #3
+    bodies[0].position = { -4.85002f,  1.21544f, 25.0f };
+    bodies[1].position = {  4.85002f, -1.21544f, 25.0f };
+    bodies[2].position = {  0.0f,      0.0f,      25.0f };
+
+    bodies[0].velocity = {  1.475f,  1.368f, 0.0f };
+    bodies[1].velocity = {  1.475f,  1.368f, 0.0f };
+    bodies[2].velocity = { -2.950f, -2.736f, 0.0f };
+
+    // Planet position
+    bodies.push_back(RigidBody{
+        {-3.0f, -3.0f, 30.5f},
+        {0.6f, -2.5f, -2.5f},
+        {0.0f, 0.0f, 0.0f},
+
+        0.25f,
+        0.25f,
+
+        Colors::Green
+    });
+
+    bodies[3].position = { 10.0f, 0.0f, 25.0f };
+    bodies[3].velocity = { 0.0f, 2.04124f, 0.0f };
 
 
     for (RigidBody& body: bodies) {

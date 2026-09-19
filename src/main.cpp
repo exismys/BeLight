@@ -363,21 +363,21 @@ int main() {
             scene_rast.objects[i].trail = &simulation.bodies[i].trail;
         }
 
-        int i = simulation.bodies.size();
+        // int i = simulation.bodies.size();
 
-        Vec3 target_dir = simulation.bodies[0].acceleration;
-        Vec3 current_dir = Vec3{0, 1, 0};
+        // Vec3 target_dir = simulation.bodies[0].acceleration;
+        // Vec3 current_dir = Vec3{0, 1, 0};
 
-        float eular_z = get_eular_angle_z(current_dir, target_dir);
-        Vec3 transformed_dir = rotate_around_z(current_dir, eular_z);
+        // float eular_z = get_eular_angle_z(current_dir, target_dir);
+        // Vec3 transformed_dir = rotate_around_z(current_dir, eular_z);
 
-        float eular_x = get_eular_angle_x(transformed_dir, target_dir);
+        // float eular_x = get_eular_angle_x(transformed_dir, target_dir);
 
-        scene_rast.objects[i].rotation = {eular_x, 0, eular_z};
-        scene_rast.objects[i].position = simulation.bodies[0].position;
+        // scene_rast.objects[i].rotation = {eular_x, 0, eular_z};
+        // scene_rast.objects[i].position = simulation.bodies[0].position;
 
-        scene_rast.objects[i + 1].rotation = {eular_x, 0, eular_z};
-        scene_rast.objects[i + 1].position = simulation.bodies[0].position;
+        // scene_rast.objects[i + 1].rotation = {eular_x, 0, eular_z};
+        // scene_rast.objects[i + 1].position = simulation.bodies[0].position;
         //===============================================================
 
 
